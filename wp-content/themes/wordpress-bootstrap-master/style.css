@@ -737,3 +737,34 @@ blockquote.pull-left{
 		padding-right: 0;
 	}
 }
+
+/* Opensource.dk specific styles */
+.foss-rules {
+	float: right;
+}
+
+.foss-rules ul {
+	list-style: none;
+	margin-left: 10px;
+}
+
+.foss-rules ul li {
+	background-position: 0 1px;
+	background-repeat: no-repeat;
+	background-size: 12px 12px;
+	vertical-align: middle;
+	margin-right: 15px;
+	padding-left: 16px;
+}
+
+.foss-must li {
+	background-image: url(images/blue-dot@2x.png);
+}
+
+.foss-allowed li {
+	background-image: url(images/green-dot@2x.png);
+}
+
+.foss-forbidden li {
+	background-image: url(images/red-dot@2x.png);
+}
