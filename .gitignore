@@ -14,7 +14,7 @@
 # Ignore settings file and uploads directory
 wp-config.php
 wp-config-local.php
-wp-contents/upload
+wp-content/uploads
 
 # Other unneeded files
 .DS_Store
