@@ -551,13 +551,15 @@ class Ai1ec_View_Helper {
 	 * @return void
 	 */
 	function json_response( $data ) {
+		$this->_dump_buffers();
+		header( 'HTTP/1.1 200 OK' );
 		header( 'Cache-Control: no-cache, must-revalidate' );
 		header( 'Pragma: no-cache' );
 		header( 'Content-Type: application/json; charset=UTF-8' );
 
 		// Output JSON-encoded result and quit
 		echo json_encode( ai1ec_utf8( $data ) );
-		exit;
+		return ai1ec_stop( 0 );
 	}
 
 	/**
@@ -570,11 +572,26 @@ class Ai1ec_View_Helper {
 	 * @return void
 	 */
 	function jsonp_response( $data, $callback ) {
+		$this->_dump_buffers();
+		header( 'HTTP/1.1 200 OK' );
 		header( 'Content-Type: application/json; charset=UTF-8' );
 
 		// Output JSONP-encoded result and quit
 		echo $callback . '(' . json_encode( ai1ec_utf8( $data ) ) . ')';
-		exit;
+		return ai1ec_stop( 0 );
+	}
+
+	/**
+	 * Dump output buffers before starting output
+	 *
+	 * @return bool True unless an error occurs
+	 */
+	protected function _dump_buffers() {
+		$result = true;
+		while ( ob_get_level() ) {
+			$result &= ob_end_clean();
+		}
+		return $result;
 	}
 
 	/**
@@ -639,6 +656,49 @@ class Ai1ec_View_Helper {
 	}
 
 	/**
+	 * Inject base event edit link for modified instances
+	 *
+	 * Modified instances are events, belonging to some parent having recurrence
+	 * rule, and having some of it's properties altered.
+	 *
+	 * @param array    $actions List of defined actions
+	 * @param stdClass $post    Instance being rendered (WP_Post class instance in WP 3.5+)
+	 *
+	 * @return array Optionally modified $actions list
+	 */
+	public function post_row_actions( array $actions, $post ) {
+		if ( is_ai1ec_post( $post ) ) {
+			global $ai1ec_events_helper;
+			$parent_post_id = $ai1ec_events_helper->event_parent( $post->ID );
+			if (
+				$parent_post_id &&
+				NULL !== ( $parent_post = get_post( $parent_post_id ) ) &&
+				isset( $parent_post->post_status ) &&
+				'trash' !== $parent_post->post_status
+			) {
+				$parent_link = get_edit_post_link(
+					$parent_post_id,
+					'display'
+				);
+				$actions['ai1ec_parent'] = sprintf(
+					'<a href="%s" title="%s">%s</a>',
+					wp_nonce_url( $parent_link ),
+					sprintf(
+						__( 'Edit &#8220;%s&#8221;', AI1EC_PLUGIN_NAME ),
+						apply_filters(
+							'the_title',
+							$parent_post->post_title,
+							$parent_post->ID
+						)
+					),
+					__( 'Base Event', AI1EC_PLUGIN_NAME )
+				);
+			}
+		}
+		return $actions;
+	}
+
+	/**
 	 * the_title_admin method
 	 *
 	 * Override title, visible in admin side, to display parent event
@@ -651,21 +711,14 @@ class Ai1ec_View_Helper {
 	 */
 	public function the_title_admin( $title, $post_id ) {
 		global $ai1ec_events_helper;
-		remove_filter( 'the_title', 'esc_html' );
-		$title			= esc_html( $title );
 		$parent_post_id = $ai1ec_events_helper->event_parent( $post_id );
 		if ( $parent_post_id ) {
-			$parent_post = get_post( $parent_post_id );
-			if ( NULL !== $parent_post ) {
-				$title .= '</a> <span class="ai1ec-instance-parent">(' .
-					__( 'instance of', AI1EC_PLUGIN_NAME ) .
-					' <a href="';
-				$title .= get_edit_post_link(
-					$parent_post_id,
-					'display'
-				);
-				$title .= '">' . $parent_post->post_title;
-				$title .= '</a>)</span><a href="#noclick">';
+			try {
+				$current_event = new Ai1ec_Event( $post_id );
+				$title        .= ' @ ' .
+					$current_event->get_timespan_html();
+			} catch ( Ai1ec_Event_Not_Found $exception ) {
+				// ignore
 			}
 		}
 		return $title;

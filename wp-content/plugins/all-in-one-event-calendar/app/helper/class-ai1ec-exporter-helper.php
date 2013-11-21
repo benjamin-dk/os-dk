@@ -45,6 +45,28 @@ class Ai1ec_Exporter_Helper {
 	}
 
 	/**
+	 * get_uid_format method
+	 *
+	 * Get format of UID, to be used for current site.
+	 * The generated format is cached in static variable within this function
+	 *
+	 * @return string Format to use when printing UIDs
+	 *
+	 * @staticvar string $format Cached format, to be returned
+	 */
+	public function get_uid_format() {
+		static $format = NULL;
+		if ( NULL === $format ) {
+			$site_url = parse_url( get_site_url() );
+			$format   = 'ai1ec-%d@' . $site_url['host'];
+			if ( isset( $site_url['path'] ) ) {
+				$format .= $site_url['path'];
+			}
+		}
+		return $format;
+	}
+
+	/**
 	 * Convert an event from a feed into a new Ai1ec_Event object and add it to
 	 * the calendar.
 	 *
@@ -61,12 +83,16 @@ class Ai1ec_Exporter_Helper {
 	) {
 		global $ai1ec_events_helper;
 
-		$tz = Ai1ec_Meta::get_option( 'timezone_string' );
+		$tz  = Ai1ec_Meta::get_option( 'timezone_string' );
 
-		$e = & $calendar->newComponent( 'vevent' );
-		$uid = $event->ical_uid ?
-			$event->ical_uid : addcslashes( $event->post->guid, "\\;,\n" );
-		$e->setProperty( 'uid', $uid );
+		$e   = & $calendar->newComponent( 'vevent' );
+		$uid = '';
+		if ( $event->ical_uid ) {
+		    $uid = addcslashes( $event->ical_uid, "\\;,\n" );
+		} else {
+		    $uid = sprintf( $this->get_uid_format(), $event->post->ID );
+		}
+		$e->setProperty( 'uid', $this->_sanitize_value( $uid ) );
 		$e->setProperty(
 			'url',
 			get_permalink( $event->post_id )

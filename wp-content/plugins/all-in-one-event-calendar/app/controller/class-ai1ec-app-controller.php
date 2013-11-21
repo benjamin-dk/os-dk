@@ -221,6 +221,8 @@ class Ai1ec_App_Controller {
 		add_action( 'save_post',                                array( &$ai1ec_events_controller, 'save_post' ), 10, 2 );
 		// Delete event data when post is deleted
 		add_action( 'delete_post',                              array( &$ai1ec_events_controller, 'delete_post' ) );
+		add_action( 'trashed_post',                             array( $ai1ec_events_controller, 'trashed_post' ) );
+		add_action( 'untrashed_post',                           array( $ai1ec_events_controller, 'untrashed_post' ) );
 		add_action( 'delete_term',                              array( $ai1ec_settings, 'term_deletion' ), 10, 3 );
 		// Notification cron job hook
 		add_action( 'ai1ec_n_cron',                             array( &$ai1ec_exporter_controller, 'n_cron' ) );
@@ -253,6 +255,7 @@ class Ai1ec_App_Controller {
 				2
 			);
 		}
+		add_filter( 'post_row_actions',                         array( $ai1ec_view_helper, 'post_row_actions' ), 10, 2 );
 		add_filter( 'posts_orderby',                            array( &$ai1ec_app_helper, 'orderby' ), 10, 2 );
 		// add custom column names and change existing columns
 		add_filter( 'manage_ai1ec_event_posts_columns',         array( &$ai1ec_app_helper, 'change_columns' ) );
@@ -281,6 +284,11 @@ class Ai1ec_App_Controller {
 		add_filter( 'post_type_link',                           array( &$ai1ec_events_helper, 'post_type_link' ), 10, 3 );
 		add_filter( 'ai1ec_template_root_path',                 array( &$ai1ec_themes_controller, 'template_root_path' ) );
 		add_filter( 'ai1ec_template_root_url',                  array( &$ai1ec_themes_controller, 'template_root_url' ) );
+		add_filter( 'manage_edit-events_categories_columns',    array( $this, 'manage_event_categories_columns' ) );
+		add_filter( 'manage_events_categories_custom_column',   array( $this, 'manage_events_categories_custom_column' ), 10, 3 );
+
+		// Make checks on `pre_http_request`, to filter HTTP requests
+		add_filter( 'pre_http_request',                         array( Ai1ec_Http_Utility::instance(), 'pre_http_request' ), 10, 3 );
 
 		// ========
 		// = AJAX =
@@ -413,8 +421,8 @@ class Ai1ec_App_Controller {
 				contact_url varchar(255),
 				cost varchar(255),
 				ticket_url varchar(255),
-				ical_feed_url varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci,
-				ical_source_url varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci,
+				ical_feed_url varchar(255),
+				ical_source_url varchar(255),
 				ical_organizer varchar(255),
 				ical_contact varchar(255),
 				ical_uid varchar(255),
@@ -496,34 +504,17 @@ class Ai1ec_App_Controller {
 	function install_n_cron() {
 		global $ai1ec_settings;
 
+		$hook_name = 'ai1ec_n_cron';
+		$scheduler = Ai1ec_Scheduling_Utility::instance();
 		// if stats are disabled, cancel the cron
-		if( $ai1ec_settings->allow_statistics == false ) {
-			// delete our scheduled crons
-			wp_clear_scheduled_hook( 'ai1ec_n_cron' );
-
-			// remove the cron version
-			delete_option( 'ai1ec_n_cron_version' );
-
-			// prevent the execution of the code below
-			return;
+		if ( false === $ai1ec_settings->allow_statistics ) {
+			return $scheduler->delete( $hook_name );
 		}
-
-		// If existing CRON version is not consistent with current plugin's version,
-		// or does not exist, then create/update cron using
-		if (
-			Ai1ec_Meta::get_option( 'ai1ec_n_cron_version' ) != AI1EC_N_CRON_VERSION
-		) {
-			// delete our scheduled crons
-			wp_clear_scheduled_hook( 'ai1ec_n_cron_version' );
-			// set the new cron
-			wp_schedule_event(
-				Ai1ec_Time_Utility::current_time(),
-				AI1EC_N_CRON_FREQ,
-				'ai1ec_n_cron'
-			);
-			// update the cron version
-			update_option( 'ai1ec_n_cron_version', AI1EC_N_CRON_VERSION );
-		}
+		return $scheduler->reschedule(
+			$hook_name,
+			AI1EC_N_CRON_FREQ,
+			AI1EC_N_CRON_VERSION
+		);
 	}
 
 	/**
@@ -909,6 +900,67 @@ class Ai1ec_App_Controller {
 		update_option( 'ai1ec_plugin_name', '' );
 	}
 
+	/**
+	 * Inserts Color element at index 2 of columns array
+	 *
+	 * @param array $columns Array with event_category columns
+	 *
+	 * @return array Array with event_category columns where Color is inserted
+	 * at index 2
+	 */
+	public function manage_event_categories_columns( $columns ) {
+		$ret = array_splice( $columns, 0, 3 ) + // get only first element
+		       // insert at index 2
+		       array( 'cat_color' => __( 'Color', AI1EC_PLUGIN_NAME ) ) +
+		       // insert at index 3
+		       array( 'cat_image' => __( 'Image', AI1EC_PLUGIN_NAME ) ) +
+		       // insert rest of elements at the back
+		       array_splice( $columns, 0, count( $columns ) );
+		return $ret;
+	}
+
+	/**
+	 * Returns the color or image of the event category
+	 * that will be displayed on event category lists page in the backend
+	 *
+	 * @param array $columns Array with event_category columns
+	 *
+	 * @return array Array with event_category columns where Color is inserted
+	 * at index 2
+	 */
+	public function manage_events_categories_custom_column(
+		$not_set,
+		$column_name,
+		$term_id
+	) {
+	global $ai1ec_events_helper, $ai1ec_tax_meta_class;
+		switch ( $column_name ) {
+			case 'cat_color':
+				return $ai1ec_events_helper->get_category_color_square( $term_id );
+			case 'cat_image':
+				// get ai1ec_image_field_id from meta
+				$cat_img_meta = $ai1ec_tax_meta_class->get_tax_meta(
+					$term_id,
+					'ai1ec_image_field_id',
+					'events_categories'
+				);
+				// do we have a match?
+				if ( isset( $cat_img_meta['id'] ) ) {
+					$attributes = wp_get_attachment_image_src(
+						$cat_img_meta['id'],
+						'thumbnail'
+					);
+					if ( $attributes ) {
+						$url = array_shift( $attributes );
+						// return the image with height set to 50 pixels
+						// which is the height of the row
+						return '<img src="' . $url . '" alt="cat_image" height="50" />';
+					}
+				}
+				return '';
+		}
+	}
+	
 	/**
 	 * http_api_curl function
 	 *

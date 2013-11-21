@@ -87,6 +87,58 @@ class Ai1ec_Events_Controller {
 	}
 
 	/**
+	 * Callback on post untrashing
+	 *
+	 * @param int $post_id ID of post being untrashed
+	 *
+	 * @return void Method does not return
+	 */
+	public function untrashed_post( $post_id ) {
+		try {
+			$ai1ec_event = new Ai1ec_Event( $post_id );
+			if (
+				isset( $ai1ec_event->post ) &&
+				! empty( $ai1ec_event->recurrence_rules )
+			) { // untrash child event
+				global $ai1ec_events_helper;
+				$children = $ai1ec_events_helper
+					->get_child_event_objects( $ai1ec_event->post_id, true );
+				foreach ( $children as $child ) {
+					wp_untrash_post( $child->post_id );
+				}
+			}
+		} catch ( Ai1ec_Event_Not_Found $exception ) {
+			// ignore - not an event
+		}
+	}
+
+	/**
+	 * Callback on post trashing
+	 *
+	 * @param int $post_id ID of post being trashed
+	 *
+	 * @return void Method does not return
+	 */
+	public function trashed_post( $post_id ) {
+		try {
+			$ai1ec_event = new Ai1ec_Event( $post_id );
+			if (
+				isset( $ai1ec_event->post ) &&
+				! empty( $ai1ec_event->recurrence_rules )
+			) { // trash child event
+				global $ai1ec_events_helper;
+				$children = $ai1ec_events_helper
+					->get_child_event_objects( $ai1ec_event->post_id );
+				foreach ( $children as $child ) {
+					wp_trash_post( $child->post_id );
+				}
+			}
+		} catch ( Ai1ec_Event_Not_Found $exception ) {
+			// ignore - not an event
+		}
+	}
+
+	/**
 	 * delete_hook function
 	 *
 	 * If the deleted post is an event
@@ -116,6 +168,19 @@ class Ai1ec_Events_Controller {
 				// We need to pass an event object to the importer plugins
 				// to clean up.
 				$ai1ec_event = new Ai1ec_Event( $pid );
+				if (
+					isset( $ai1ec_event->post ) &&
+					! empty( $ai1ec_event->recurrence_rules )
+				) { // delete child event
+					global $ai1ec_events_helper;
+					$children = $ai1ec_events_helper->get_child_event_objects(
+						$ai1ec_event->post_id,
+						true
+					);
+					foreach ( $children as $child ) {
+						wp_delete_post( $child->post_id, true );
+					}
+				}
 				$ai1ec_importer_plugin_helper->handle_post_event(
 					$ai1ec_event,
 					'delete'
@@ -163,6 +228,8 @@ class Ai1ec_Events_Controller {
 		       $wpdb,
 		       $ai1ec_settings,
 		       $ai1ec_importer_plugin_helper;
+
+		$empty_event = new Ai1ec_Event();
 
 		// ==================
 		// = Default values =
@@ -354,6 +421,7 @@ class Ai1ec_Events_Controller {
 		$args = array(
 			'cost'       => $cost,
 			'ticket_url' => $ticket_url,
+			'event'      => $empty_event,
 		);
 		$boxes[] = $ai1ec_view_helper->get_admin_view(
 			'box_event_cost.php',
@@ -368,6 +436,7 @@ class Ai1ec_Events_Controller {
 			'contact_phone'   => $contact_phone,
 			'contact_email'   => $contact_email,
 			'contact_url'     => $contact_url,
+			'event'           => $empty_event,
 		);
 		$boxes[] = $ai1ec_view_helper->get_admin_view(
 			'box_event_contact.php',
@@ -397,6 +466,28 @@ class Ai1ec_Events_Controller {
 
 			$publish_button = $ai1ec_view_helper->get_admin_view(
 				'box_publish_button.php',
+				$args
+			);
+		}
+
+		// ==========================
+		// = Parent/Child relations =
+		// ==========================
+		if ( $event ) {
+			$parent   = $ai1ec_events_helper
+				->get_parent_event( $event->post_id );
+			if ( $parent ) {
+				try {
+					$parent = new Ai1ec_Event( $parent );
+				} catch ( Ai1ec_Event_Not_Found $exception ) { // ignore
+					$parent = NULL;
+				}
+			}
+			$children = $ai1ec_events_helper
+				->get_child_event_objects( $event->post_id );
+			$args    = compact( 'parent', 'children' );
+			$boxes[] = $ai1ec_view_helper->get_admin_view(
+				'box_event_children.php',
 				$args
 			);
 		}
@@ -444,12 +535,11 @@ class Ai1ec_Events_Controller {
 			return;
 		}
 
-		// Strip slashes if ridiculous PHP setting magic_quotes_gpc is enabled.
-		foreach ( $_POST as $param_name => $param ) {
-			if ( 'ai1ec' === substr( $param_name, 0, 5 ) ) {
-				$_POST[$param_name] = stripslashes( $param );
-			}
-		}
+
+		// LABEL:magicquotes
+		// remove WordPress `magical` slashes - we work around it ourselves
+		$_POST = stripslashes_deep( $_POST );
+
 
 		$all_day          = isset( $_POST['ai1ec_all_day_event'] )    ? 1                                             : 0;
 		$instant_event    = isset( $_POST['ai1ec_instant_event'] )    ? 1                                             : 0;
@@ -536,6 +626,9 @@ class Ai1ec_Events_Controller {
 
 		$ai1ec_events_helper->delete_event_cache( $post_id );
 		$ai1ec_events_helper->cache_event( $event );
+		// LABEL:magicquotes
+		// restore `magic` WordPress quotes to maintain compatibility
+		$_POST = add_magic_quotes( $_POST );
 		return $event;
 	}
 
@@ -731,7 +824,9 @@ HTML;
 			'exclude'                 => $event->get_exclude_html(),
 			'categories'              => $event->get_categories_html(),
 			'tags'                    => $event->get_tags_html(),
-			'location'                => nl2br( $event->get_location() ),
+			'location'                => nl2br(
+				esc_html( $event->get_location() )
+			),
 			'map'                     => $this->get_map_view( $event ),
 			'contact'                 => $event->get_contact_html(),
 			'back_to_calendar'        => $event->get_back_to_calendar_button_html(),
@@ -768,7 +863,9 @@ HTML;
 		global $ai1ec_view_helper,
 		       $ai1ec_calendar_helper;
 
-		$location = str_replace( "\n", ', ', rtrim( $event->get_location() ) );
+		$location = esc_html(
+			str_replace( "\n", ', ', rtrim( $event->get_location() ) )
+		);
 
 		$args = array(
 			'event'              => $event,
@@ -792,7 +889,9 @@ HTML;
 		global $ai1ec_view_helper,
 		       $ai1ec_calendar_helper;
 
-		$location = str_replace( "\n", ', ', rtrim( $event->get_location() ) );
+		$location = esc_html(
+			str_replace( "\n", ', ', rtrim( $event->get_location() ) )
+		);
 
 		$args = array(
 			'event'    => $event,
@@ -919,7 +1018,7 @@ HTML;
 	 */
 	function edited_events_categories( $term_id ) {
 		global $wpdb;
-		$tag_color_value = NULL;
+		$tag_color_value = '';
 		if (
 			isset( $_POST['tag-color-value'] ) &&
 			! empty( $_POST['tag-color-value'] )
@@ -973,7 +1072,7 @@ HTML;
 	 **/
 	protected function _create_duplicate_post( ) {
 		global $ai1ec_events_helper;
-		if ( !isset( $_POST['post_ID'] ) ) {
+		if ( ! isset( $_POST['post_ID'] ) ) {
 			return false;
 		}
 		$clean_fields = array(

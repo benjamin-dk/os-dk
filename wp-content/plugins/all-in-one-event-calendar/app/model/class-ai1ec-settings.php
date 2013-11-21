@@ -369,6 +369,11 @@ class Ai1ec_Settings {
 	public $skip_in_the_loop_check;
 
 	/**
+	 * @var bool Disable GZIP compression for JS/CSS
+	 */
+	public $disable_gzip_compression;
+
+	/**
 	 * __construct function
 	 *
 	 * Default constructor
@@ -550,6 +555,7 @@ class Ai1ec_Settings {
 			'show_location_in_title'         => TRUE,
 			'show_year_in_agenda_dates'      => FALSE,
 			'skip_in_the_loop_check'         => false,
+			'disable_gzip_compression'       => false,
 		);
 
 		foreach ( $defaults as $key => $default ) {
@@ -640,6 +646,7 @@ class Ai1ec_Settings {
 			'show_location_in_title',
 			'show_year_in_agenda_dates',
 			'skip_in_the_loop_check',
+			'disable_gzip_compression',
 		);
 		// Only super-admins have the power to change Event Platform mode.
 		if ( is_super_admin() ) {

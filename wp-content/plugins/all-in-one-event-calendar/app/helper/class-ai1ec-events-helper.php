@@ -198,7 +198,18 @@ class Ai1ec_Events_Helper {
 				case 'BYDAY':
 					$rules['BYDAY'] = array();
 					foreach ( explode( ',', $val ) as $day ) {
-						$rules['BYDAY'][] = $this->create_byday_array( $day );
+						$rule_map = $this->create_byday_array( $day );
+						$rules['BYDAY'][] = $rule_map;
+						if (
+							preg_match( '/FREQ=(MONTH|YEAR)LY/i', $rule ) &&
+							1 === count( $rule_map )
+						) {
+							// monthly/yearly "last" recurrences need day name
+							$rules['BYDAY']['DAY'] = substr(
+								$rule_map['DAY'],
+								-2
+							);
+						}
 					}
 					break;
 
@@ -604,31 +615,90 @@ class Ai1ec_Events_Helper {
 	 * @param int $instance_id ID of old instance id
 	 *
 	 * @return int|bool Value depends on mode:
-	 *     Getter:
-	 *         - false for entry without parent
-	 *         - parent_id when found
-	 *     Setter:
-	 *         - true on success.
+	 *     Getter: {@see self::get_parent_event()} for details
+	 *     Setter: true on success.
 	 */
 	public function event_parent( $event_id, $parent_id = NULL, $instance_id = NULL ) {
 		$meta_key = '_ai1ec_event_parent';
 		if ( NULL === $parent_id ) {
-			$parent_id = (int)Ai1ec_Meta::instance( 'Post' )
-				->get( $event_id, $meta_key, 0, true );
-			if ( empty( $parent_id ) || $parent_id <= 0 ) {
-				$parent_id = false;
-			}
-			return $parent_id;
+			return $this->get_parent_event( $event_id );
 		}
-		$parent_id = (int)$parent_id;
-		add_post_meta( $event_id, $meta_key, $parent_id,  true );
-		$meta_key .= '_' . $parent_id;
 		$meta_value = json_encode( array(
 				'created'  => Ai1ec_Time_Utility::current_time(),
 				'instance' => $instance_id,
 		) );
-		add_post_meta( $event_id, $meta_key, $meta_value, true );
-		return true;
+		return add_post_meta( $event_id, $meta_key, $meta_value, true );
+	}
+
+	/**
+	 * Get parent ID for given event
+	 *
+	 * @param int $current_id Current event ID
+	 *
+	 * @return int|bool ID of parent event or bool(false)
+	 */
+	public function get_parent_event( $current_id ) {
+		static $parents = NULL;
+		if ( NULL === $parents ) {
+			$parents = Ai1ec_Memory_Utility::instance( __METHOD__ );
+		}
+		$current_id = (int)$current_id;
+		if ( NULL === ( $parent_id = $parents->get( $current_id ) ) ) {
+			global $wpdb;
+			$query      = '
+				SELECT parent.ID, parent.post_status
+				FROM
+					' . $wpdb->posts . ' AS child
+					INNER JOIN ' . $wpdb->posts . ' AS parent
+						ON ( parent.ID = child.post_parent )
+				WHERE child.ID = ' . $current_id;
+			$parent     = $wpdb->get_row( $query );
+			if (
+				empty( $parent ) ||
+				'trash' === $parent->post_status
+			) {
+				$parent_id = false;
+			} else {
+				$parent_id = $parent->ID;
+			}
+			$parents->set( $current_id, $parent_id );
+			unset( $query );
+		}
+		return $parent_id;
+	}
+
+	/**
+	 * Returns a list of modified (children) event objects
+	 *
+	 * @param int  $parent_id     ID of parent event
+	 * @param bool $include_trash Includes trashed when `true` [optional=false]
+	 *
+	 * @return array List (might be empty) of Ai1ec_Event objects
+	 */
+	public function get_child_event_objects(
+		$parent_id,
+		$include_trash = false
+	) {
+		global $wpdb;
+		$parent_id = (int)$parent_id;
+		$sql_query = 'SELECT ID FROM ' . $wpdb->posts .
+			' WHERE post_parent = ' . $parent_id;
+		$childs    = (array)$wpdb->get_col( $sql_query );
+		$objects = array();
+		foreach ( $childs as $child_id ) {
+			try {
+				$instance = new Ai1ec_Event( $child_id );
+				if (
+					$include_trash ||
+					'trash' !== $instance->post->post_status
+				) {
+					$objects[$child_id] = $instance;
+				}
+			} catch ( Ai1ec_Event_Not_Found $exception ) {
+				// ignore
+			}
+		}
+		return $objects;
 	}
 
 	/**
@@ -1026,6 +1096,7 @@ class Ai1ec_Events_Helper {
 				strtotime( $_dn . '-01-1998 12:00:00' )
 			);
 		}
+		$options_dn['-1'] = __( 'last', AI1EC_PLUGIN_NAME );
 
 		$args = array(
 		 'visible'              => $visible,
@@ -1625,10 +1696,12 @@ class Ai1ec_Events_Helper {
 	 **/
 	function get_category_color_square( $term_id ) {
 		$color = $this->get_category_color( $term_id );
-		$cat = get_term( $term_id, 'events_categories' );
-		if( ! is_null( $color ) && ! empty( $color ) )
-			return '<span class="ai1ec-category-color ai1ec-tooltip-trigger" style="background:' . $color . '" title="' . esc_attr( $cat->name ) . '"></span>';
-
+		if( NULL !== $color && ! empty( $color ) ) {
+			$cat = get_term( $term_id, 'events_categories' );
+			return '<span class="ai1ec-color-swatch ai1ec-tooltip-trigger" ' .
+				'style="background:' . $color . '" title="' .
+				esc_attr( $cat->name ) . '"></span>';
+		}
 		return '';
 	}
 
@@ -1866,35 +1939,36 @@ class Ai1ec_Events_Helper {
 	}
 
 	/**
-	 * ics_rule_to function
+	 * Parse ICS rule representation and clean it
+	 *
+	 * @param string $rule   Recurrence rule to convert
+	 * @param bool   $to_gmt Conversion direction
 	 *
 	 * @return void
-	 **/
+	 */
 	private function ics_rule_to( $rule, $to_gmt = false ) {
 		$rc = new SG_iCal_Recurrence( new SG_iCal_Line( 'RRULE:' . $rule ) );
-		if( $until = $rc->getUntil() ) {
-			if( ! is_int( $until ) ) {
+		if ( $until = $rc->getUntil() ) {
+			if ( ! is_int( $until ) ) {
 				$until = strtotime( $until );
 			}
-			if( $to_gmt ) {
-				$until = $this->local_to_gmt( $until );
-			} else {
-				$until = $this->gmt_to_local( $until );
-			}
 
-			$until = gmdate( "Ymd\THis\Z", $until );
+			$until      = gmdate( "Ymd\THis\Z", $until );
 			$rule_props = explode( ';', $rule );
-			$_rule = array();
-			foreach( $rule_props as $property ) {
+			$_rule      = array();
+			foreach ( $rule_props as $property ) {
 				// don't apply any logic to empty properties
-				if( empty( $property ) ) {
+				if ( empty( $property ) ) {
 					$_rule[] = $property;
 					continue;
 				}
 				$name_and_value = explode( '=', $property );
-				if( isset( $name_and_value[0] ) && strtolower( $name_and_value[0] ) == 'until' ) {
-					if( isset( $name_and_value[1] ) ) {
-						$_rule[] = "UNTIL=" . $until;
+				if (
+					isset( $name_and_value[0] ) &&
+					'until' === strtolower( $name_and_value[0] )
+				) {
+					if ( isset( $name_and_value[1] ) ) {
+						$_rule[] = 'UNTIL=' . $until;
 					}
 				} else {
 					$_rule[] = $property;
@@ -2043,13 +2117,20 @@ class Ai1ec_Events_Helper {
 					}
 				} elseif( $rc->getByDay() ) {
 					$_days = '';
-					foreach( $rc->getByDay() as $d ) {
-						$_dnum  = substr( $d, 0, 1);
-						$_day   = substr( $d, 1, 3 );
-						$dnum   = ' ' . Ai1ec_Time_Utility::date_i18n(
-							'jS',
-							strtotime( $_dnum . '-01-1998 12:00:00' )
-						);
+					foreach ( $rc->getByDay() as $d ) {
+						if ( ! preg_match( '|^((-?)\d+)([A-Z]{2})$|', $d, $matches ) ) {
+							continue;
+						}
+						$_dnum  = $matches[1];
+						$_day   = $matches[3];
+						if ( '-' === $matches[2] ) {
+							$dnum = ' ' . __( 'last', AI1EC_PLUGIN_NAME );
+						} else {
+							$dnum   = ' ' . Ai1ec_Time_Utility::date_i18n(
+								'jS',
+								strtotime( $_dnum . '-01-1998 12:00:00' )
+							);
+						}
 						$day    = $this->get_weekday_by_id( $_day, true );
 						$_days .= ' ' . $wp_locale->weekday[$day];
 					}

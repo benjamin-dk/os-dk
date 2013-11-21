@@ -26,7 +26,7 @@
 						</label>
 					</td>
 					<td>
-						<input type="text" name="ai1ec_ticket_url" id="ai1ec_ticket_url" value="<?php echo $ticket_url; ?>" />
+						<input type="text" name="ai1ec_ticket_url" id="ai1ec_ticket_url" value="<?php echo $event->get_nonloggable_url( $ticket_url ); ?>" />
 					</td>
 				</tr>
 			</tbody>

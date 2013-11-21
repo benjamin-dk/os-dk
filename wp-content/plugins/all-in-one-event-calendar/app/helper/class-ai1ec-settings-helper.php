@@ -354,6 +354,9 @@ class Ai1ec_Settings_Helper {
 		$posterboard_events_per_page    = $ai1ec_settings->posterboard_events_per_page;
 		$posterboard_tile_min_width     = $ai1ec_settings->posterboard_tile_min_width;
 		$agenda_events_per_page         = $ai1ec_settings->agenda_events_per_page;
+		$disable_gzip_compression       = $ai1ec_settings->disable_gzip_compression
+			? 'checked="checked"'
+			: '';
 		$agenda_include_entire_last_day = $ai1ec_settings->agenda_include_entire_last_day
 			? 'checked="checked"'
 			: '';
@@ -438,6 +441,7 @@ class Ai1ec_Settings_Helper {
 			'event_platform_disabled'        => $event_platform_disabled,
 			'event_platform_strict'          => $event_platform_strict,
 			'display_event_platform'         => is_super_admin(),
+			'disable_gzip_compression'       => $disable_gzip_compression,
 		);
 		$ai1ec_view_helper->display_admin( 'box_general_settings.php', $args );
 	}

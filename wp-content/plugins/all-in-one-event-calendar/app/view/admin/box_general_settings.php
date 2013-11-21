@@ -8,6 +8,15 @@
 
 <div class="tab-content ai1ec-boxed-tabs">
 
+	<div class="ai1ec-gzip-causes-js-failure"><?php
+	printf(
+		__(
+			'If the form below is not working please follow <a href="%s">this link</a>.',
+			AI1EC_PLUGIN_NAME
+		),
+		add_query_arg( 'ai1ec_disable_gzip_compression', '1' )
+	); ?></div>
+
 	<div class="tab-pane" id="ai1ec-viewing-events">
 		<h2><?php _e( 'Viewing Events', AI1EC_PLUGIN_NAME ); ?></h2>
 
@@ -256,6 +265,17 @@
 			</label>
 		</div>
 		<span class="help-block"><?php _e( 'Try enabling this option if your calendar does not appear on the calendar page. It is needed for compatibility with a small number of themes that call <tt>the_content()</tt> from outside of The Loop. Leave disabled otherwise.', AI1EC_PLUGIN_NAME ) ?></span>
+
+		<label for="disable_gzip_compression">
+			<input class="checkbox" name="disable_gzip_compression" id="disable_gzip_compression" type="checkbox" value="1" <?php echo $disable_gzip_compression; ?> />
+			<?php printf(
+				__(
+					'Disable <strong>gzip</strong> compression. Use this option if calendar is non-responsive. Read <a href="%s">more about</a> the issue.',
+					AI1EC_PLUGIN_NAME
+				),
+				'http://support.time.ly/disable-gzip-compression/'
+			); ?>
+		</label>
 
 		<?php if( $display_event_platform ): ?>
 			<label for="event_platform">

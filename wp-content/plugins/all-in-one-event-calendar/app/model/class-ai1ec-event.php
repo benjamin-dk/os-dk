@@ -473,10 +473,12 @@ class Ai1ec_Event {
 			// ==========================
 			// = Assign values to $this =
 			// ==========================
-			foreach( $this as $property => $value ) {
-				if( $property != 'post' ) {
-				  if( isset( $event->{$property} ) )
-					$this->{$property} = $event->{$property};
+			foreach ( $this as $property => $value ) {
+				if ( 'post' !== $property && isset( $event->{$property} ) ) {
+					$this->_handle_property_construct(
+						$property,
+						$event->{$property}
+					);
 				}
 			}
 		}
@@ -488,12 +490,16 @@ class Ai1ec_Event {
 			// =======================================================
 			// = Assign each event field the value from the database =
 			// =======================================================
-			foreach( $this as $property => $value ) {
-				if ( $property != 'post' && array_key_exists( $property, $data ) ) {
-					$this->{$property} = $data[$property];
+			foreach ( $this as $property => $value ) {
+				if ( 'post' !== $property && isset( $data[$property] ) ) {
+					$this->_handle_property_construct(
+						$property,
+						$data[$property]
+					);
 					unset( $data[$property] );
 				}
 			}
+			// @TODO: consider `new WP_Post( (object)$data['post'] )`
 			if ( isset( $data['post'] ) ) {
 				$this->post = (object) $data['post'];
 			} else {
@@ -506,6 +512,146 @@ class Ai1ec_Event {
 		else {
 			throw new Ai1ec_Invalid_Argument( "Argument to constructor must be integer, array or null, not '$data'." );
 		}
+	}
+
+	/**
+	 * Restore original URL from loggable event URL
+	 *
+	 * @param string $value URL as seen by visitor
+	 *
+	 * @return string Original URL
+	 */
+	public function get_nonloggable_url( $value ) {
+		if (
+			empty( $value ) ||
+			false === strpos( $value, AI1EC_REDIRECTION_SERVICE )
+		) {
+			return $value;
+		}
+		$decoded = json_decode(
+			base64_decode(
+				trim(
+					substr( $value, strlen( AI1EC_REDIRECTION_SERVICE ) ),
+					'/'
+				)
+			),
+			true
+		);
+		if ( ! isset( $decoded['l'] ) ) {
+			return '';
+		}
+		return $decoded['l'];
+	}
+
+	/**
+	 * Convert URL to a loggable form
+	 *
+	 * @param string $url    URL to which access must be counted
+	 * @param string $intent Char definition: 'b' - buy, 'd' - details
+	 *
+	 * @return string Loggable URL form
+	 */
+	protected function _make_url_loggable( $url, $intent ) {
+		static $options = NULL;
+		$url = trim( $url );
+		if ( ! $url || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return $url;
+		}
+		if ( ! isset( $options ) ) {
+			$options = array(
+				'l' => NULL,
+				'e' => ( false !== strpos( AI1EC_VERSION, 'pro' ) ) ? 'p' : 's',
+				'v' => (string)AI1EC_VERSION,
+				'i' => NULL,
+				'c' => NULL,
+				'o' => (string)get_site_url(),
+			);
+		}
+		$options['l'] = (string)$url;
+		$options['i'] = (string)$intent;
+		$options['c'] = (string)$this->cost;
+		return AI1EC_REDIRECTION_SERVICE .
+			base64_encode( json_encode( $options ) );
+	}
+
+	/**
+	 * Make `Ticket URL` loggable
+	 *
+	 * @param string $value Ticket URL stored in database
+	 *
+	 * @return bool Success
+	 */
+	protected function _handle_property_construct_ticket_url( $value ) {
+		$this->ticket_url = $this->_make_url_loggable( $value, 'b' );
+		return true;
+	}
+
+	/**
+	 * Make `Contact URL` loggable
+	 *
+	 * @param string $value Contact URL stored in database
+	 *
+	 * @return bool Success
+	 */
+	protected function _handle_property_construct_contact_url( $value ) {
+		$this->contact_url = $this->_make_url_loggable( $value, 'd' );
+		return true;
+	}
+
+	/**
+	 * Store `Ticket URL` in non-loggable form
+	 *
+	 * @return string Non loggable URL
+	 */
+	protected function _handle_property_destruct_ticket_url() {
+		return $this->get_nonloggable_url( $this->ticket_url );
+	}
+
+	/**
+	 * Store `Contact URL` in non-loggable form
+	 *
+	 * @return string Non loggable URL
+	 */
+	protected function _handle_property_destruct_contact_url() {
+		return $this->get_nonloggable_url( $this->contact_url );
+	}
+
+	/**
+	 * Abstraction for property initiation (aka __set)
+	 *
+	 * Handle property initiation, upon object construction - decides, how to
+	 * extract value stored in permanent storage.
+	 *
+	 * @param string $property Name of property to handle
+	 * @param mixed  $value    Value, read from permanent storage
+	 *
+	 * @return bool Success
+	 */
+	protected function _handle_property_construct( $property, $value ) {
+		$method = '_handle_property_construct_' . $property;
+		if ( method_exists( $this, $method ) ) {
+			return $this->$method( $value );
+		}
+		$this->{$property} = $value;
+		return true;
+	}
+
+	/**
+	 * Abstraction for property serialization (aka __get)
+	 *
+	 * Handle property storage upon object destruction - decides how to compact
+	 * property for permanent storage.
+	 *
+	 * @param string $property Name of property to handle
+	 *
+	 * @return mixed Property value to write to permanent storage
+	 */
+	protected function _handle_property_destruct( $property ) {
+		$method = '_handle_property_destruct_' . $property;
+		if ( method_exists( $this, $method ) ) {
+			return $this->$method();
+		}
+		return $this->{$property};
 	}
 
 	/**
@@ -1493,9 +1639,9 @@ HTML;
 			'contact_name'     => $this->contact_name,
 			'contact_phone'    => $this->contact_phone,
 			'contact_email'    => $this->contact_email,
-			'contact_url'      => $this->contact_url,
+			'contact_url'      => $this->_handle_property_destruct( 'contact_url' ),
 			'cost'             => $this->cost,
-			'ticket_url'       => $this->ticket_url,
+			'ticket_url'       => $this->_handle_property_destruct( 'ticket_url' ),
 			'ical_feed_url'    => $this->ical_feed_url,
 			'ical_source_url'  => $this->ical_source_url,
 			'ical_uid'         => $this->ical_uid,

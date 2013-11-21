@@ -1,7 +1,7 @@
 <div class="ai1ec-support-placeholder"><span class="ai1ec-loader-icon-small"></span></div>
 <script src="<?php echo $support_box_js ?>"></script>
 <div class="ai1ec-news">
-	<h2><?php _e( 'Timely News', AI1EC_PLUGIN_NAME ); ?> <small><a href="http://time.ly/blog?utm_source=dashboard&utm_medium=blog&utm_term=ai1ec-standard&utm_content=1.10&utm_campaign=news" target="_blank"><?php _e( 'view all news', AI1EC_PLUGIN_NAME ); ?> <i class="icon-arrow-right"></i></a></small></h2>
+	<h2><?php _e( 'Timely News', AI1EC_PLUGIN_NAME ); ?> <small><a href="http://time.ly/blog?utm_source=dashboard&utm_medium=blog&utm_term=ai1ec-standard&utm_content=1.10.9&utm_campaign=news" target="_blank"><?php _e( 'view all news', AI1EC_PLUGIN_NAME ); ?> <i class="icon-arrow-right"></i></a></small></h2>
 	<div>
 	<?php if( count( $news ) > 0 ) : ?>
 		<?php foreach( $news as $n ) : ?>

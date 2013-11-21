@@ -5,16 +5,12 @@
  * Description: A calendar system with posterboard, month, week, day, agenda views, upcoming events widget, color-coded categories, recurrence, and import/export of .ics feeds.
  * Author: Timely Network Inc
  * Author URI: http://time.ly/
- * Version: 1.10-standard
+ * Version: 1.10.9-standard
  */
 
 @set_time_limit( 0 );
 @ini_set( 'memory_limit',           '256M' );
 @ini_set( 'max_input_time',         '-1' );
-// Disable fopen (streams) transport if no cUrl is present to allow CRON
-if( ! function_exists( 'curl_init' ) ) {
-	add_filter( 'use_streams_transport', '__return_false' );
-}
 // Define AI1EC_EVENT_PLATFORM as TRUE to turn WordPress into an events-only
 // platform. For a multi-site install, setting this to TRUE is equivalent to a
 // super-administrator selecting the
@@ -75,7 +71,7 @@ Ai1ec_Less_Factory::set_default_theme_url( AI1EC_DEFAULT_THEME_URL );
 if( isset( $_GET[Ai1ec_Css_Controller::GET_VARIBALE_NAME] ) ) {
 	$css_controller = Ai1ec_Less_Factory::create_css_controller_instance();
 	$css_controller->render_css();
-	exit;
+	exit(0);
 }
 
 // ================================================
@@ -100,11 +96,18 @@ add_filter( 'http_request_args', 'ai1ec_disable_updates', 5, 2 );
 global $ai1ec_settings;
 
 $ai1ec_settings = Ai1ec_Settings::get_instance();
+// If GZIP is causing JavaScript failure following query
+// parameter disable compression, until reversing change
+// is made. Causative issue: AIOEC-1192.
+if ( isset( $_REQUEST['ai1ec_disable_gzip_compression'] ) ) {
+	$ai1ec_settings->disable_gzip_compression = true;
+	$ai1ec_settings->save();
+}
 // This is a fix for AIOEC-73. I need to set those values as soon as possible so that
 // the platofrom controller has the fresh data and can act accordingly
 // I do not trigger the save action at this point because there are too many things going on
 // there and i might break things
-if( isset( $_POST['ai1ec_save_settings'] ) ) {
+if ( isset( $_POST['ai1ec_save_settings'] ) ) {
 	$ai1ec_settings->event_platform = isset( $_POST['event_platform'] );
 	$ai1ec_settings->event_platform_strict = isset( $_POST['event_platform_strict'] );
 }

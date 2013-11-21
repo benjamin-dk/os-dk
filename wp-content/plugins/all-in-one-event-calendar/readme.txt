@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: calendar, event, events, ics, ics calendar, ical-feed, ics feed, wordpress ics importer, wordpress ical importer, upcoming events, todo, notes, journal, freebusy, availability, web calendar, web events, webcal, google calendar, ical, iCalendar, all-in-one, ai1ec, google calendar sync, ical sync, events sync, holiday calendar, calendar 2011, events 2011, widget, events widget, upcoming events widget, calendar widget, agenda widget, posterboard
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.10-standard
+Stable tag: 1.10.9-standard
 License: EULA.license
 
 A calendar system with many views, upcoming events widget, color-coded categories, recurrence, and import/export of facebook events and .ics feeds.
@@ -101,7 +101,37 @@ http://vimeo.com/55904173
 
 == Changelog ==
 
-= Version 1.10-pro =
+= Version 1.10.9-standard =
+* Increasing version number from 1.10.1-Standard to 1.10.9-Standard to
+work around WordPress behaviour suggesting upgrade to 1.10.4-Lite.
+
+= Version 1.10.1-standard =
+* Added "last" option to monthly recurrence patterns
+* Modified exported UID to reflect event origin
+* Fixed issue where category colour wasn't seen on Event Categories
+admin page
+* Fixed issue where some names recieved "MAILTO:" prefix when
+importing feeds
+* Fixed several database handling cases which may have caused plugin
+installation failure on some systems
+* Improved plugin performance especially when handling larger number
+of events
+* Modified addressing scheme to use tilde (~) instead of colon (:) for
+arguments identification to resolve an issue with some Microsoft IIS
+servers
+* Fixed issue where events exported to Facebook had backslash added
+before certain symbols
+* Fixed issue that caused a JavaScript error to app
+ear on admin dashboard in some cases
+* Added possibility to turn off compression of CSS files
+* Fixed issue that prevented "Reveal whole day" button from working
+* Fixed several possible vulnerabilities (courtesy for finding goes to
+Christian Mehlmauer)
+* Fixed issue with WordPress Total Cache plugin that caused server
+error
+* Fixed issue that prevented removal of assigned category colours
+
+= Version 1.10-standard =
 * Made improvements to page rendering times
 * Addressed issue with errors occurring on some hosting environments
 (__PHP_Incomplete_Class)

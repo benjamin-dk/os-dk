@@ -212,7 +212,7 @@ class Ai1ec_App_Helper {
 				'publish_posts'           => 'publish_ai1ec_events',
 				'read_private_posts'      => 'read_private_ai1ec_events' ),
 			'has_archive' 				=> true,
-			'hierarchical' 				=> true,
+			'hierarchical' 				=> false,
 			'menu_position' 			=> 5,
 			'supports'						=> $supports,
 			'exclude_from_search' => $ai1ec_settings->exclude_from_search,

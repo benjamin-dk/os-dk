@@ -6,6 +6,47 @@
 //  Created by The Seed Studio on 2012-02-28.
 //
 
+/**
+ * Named function to return `false`
+ *
+ * Used to distinguish from `__return_false` provided by WordPress
+ *
+ * @return bool Always return false
+ */
+function ai1ec_return_false() {
+	return false;
+}
+
+/**
+ * Method to stop script execution
+ *
+ * @param int|string $code Exit value, expected int [optional=0]
+ *
+ * @return mixed Returns {$code}, unless `ai1ec_stop` filter returns false
+ */
+function ai1ec_stop( $code = 0 ) {
+	if ( ! apply_filters( 'ai1ec_stop', true ) ) {
+		echo $code;
+		return $code;
+	}
+	exit( $code );
+}
+
+/**
+ * Check if given post is Ai1EC event
+ *
+ * @param stdClass $post Instance of WP_Post class
+ *
+ * @return bool True if it is Ai1EC
+ */
+function is_ai1ec_post( $post ) {
+	return (
+		is_object( $post ) &&
+		isset( $post->post_type  ) &&
+		AI1EC_POST_TYPE === $post->post_type
+	);
+}
+
 if ( ! function_exists( 'pr' ) ):
 /**
  * pr function

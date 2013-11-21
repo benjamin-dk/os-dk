@@ -33,7 +33,7 @@ $apiConfig = array(
     'developer_key' => 'AIzaSyBG7LlUoHc29ZeC_dsShVaBEX15SfRl_WY',
   
     // Site name to show in the Google's OAuth 1 authentication screen.
-    'site_name' => 'www.deconf.com',
+    'site_name' => 'deconf.com',
 
     // Which Authentication, Storage and HTTP IO classes to use.
     'authClass'    => 'Google_OAuth2',
@@ -52,7 +52,7 @@ $apiConfig = array(
 
     // Definition of service specific values like scopes, oauth token URLs, etc
     'services' => array(
-      'analytics' => array('scope' => 'https://www.googleapis.com/auth/analytics.readonly'),
+      'analytics' => array('scope' => array('https://www.googleapis.com/auth/analytics.readonly','scope' => 'https://www.googleapis.com/auth/analytics')),
       'calendar' => array(
           'scope' => array(
               "https://www.googleapis.com/auth/calendar",

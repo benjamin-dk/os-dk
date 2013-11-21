@@ -385,6 +385,12 @@ class Ai1ec_Importer_Helper {
 			// = Contact name, phone, e-mail =
 			// ===============================
 			$organizer = $e->getProperty( 'organizer' );
+			if (
+				'MAILTO:' === substr( $organizer, 0, 7 ) &&
+				false === strpos( $organizer, '@' )
+			) {
+				$organizer = substr( $organizer, 7 );
+			}
 			$contact = $e->getProperty( 'contact' );
 			$elements = explode( ';', $contact, 4 );
 			foreach ( $elements as $el ) {

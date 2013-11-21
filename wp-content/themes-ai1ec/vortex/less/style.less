@@ -47,7 +47,7 @@ body.modal-open {
 		visibility: hidden;
 	}
 }
-.wf-active .ai1ec-posterboard-view,
+.wf-leaguegothic-n4-active .ai1ec-posterboard-view,
 .wf-inactive .ai1ec-posterboard-view {
 	background-image: none;
 	min-height: @baseLineHeight;
@@ -170,6 +170,7 @@ body.modal-open {
 		*border: 0; // Remove the border to prevent IE7's black border on input:focus
 		border-bottom-color: darken(@btnBorder, 10%);
 		.box-shadow( @btnShadow );
+		.box-sizing( content-box );
 		&:hover {
 			color: @btnTextHover;
 		}
@@ -637,15 +638,15 @@ body.modal-open {
 }
 
 // Category colors.
-.ai1ec-category-color,
-.ai1ec-category-color-empty {
+.ai1ec-color-swatch,
+.ai1ec-color-swatch-empty {
 	display: inline-block;
 	height: 6px;
 	margin: 0 1px;
 	padding: 1px;
 	width: 6px;
 }
-.ai1ec-category-color {
+.ai1ec-color-swatch {
 	.border-radius( 4px );
 	border-color: rgba(0,0,0,0.5);
 	.opacity( 80 );
@@ -875,11 +876,11 @@ body.modal-open {
 			width: 100%;
 		}
 	}
-	.ai1ec-category-colors {
+	.ai1ec-color-swatches {
 		float: right;
 		font-size: 0.9em;
 	}
-	.ai1ec-category-color {
+	.ai1ec-color-swatch {
 		padding: 1px;
 	}
 	.post-edit-link {

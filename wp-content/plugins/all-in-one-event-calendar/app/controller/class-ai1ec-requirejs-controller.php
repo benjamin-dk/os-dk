@@ -216,18 +216,6 @@ class Ai1ec_Requirejs_Controller {
 			$this->ai1ec_scripts->localize_script_for_requirejs(
 				'ai1ec_calendar_requirejs', 'ai1ec_config', $data, true
 			);
-			// Now it's time to load custom functions from the themes
-			try {
-				$this->ai1ec_scripts->enqueue_admin_script(
-					'ai1ec_calendar_theme_require',
-					"themes/vortex/pages/calendar.js",
-					array( self::JS_HANDLE ),
-					true
-				);
-			}
-			catch ( Ai1ec_File_Not_Found $e ) {
-				// There is no custom file to load.
-			}
 			$this->load_frontend_js_translations( 'ai1ec_calendar_requirejs' );
 		}
 	}
