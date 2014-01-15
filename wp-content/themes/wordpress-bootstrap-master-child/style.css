@@ -45,3 +45,7 @@
 .foss-forbidden li {
 	background-image: url(images/red-dot@2x.png);
 }
+
+#text-5.span4 {
+	width:inherit;
+}

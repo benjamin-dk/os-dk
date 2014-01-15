@@ -72,6 +72,8 @@ Template Name: Homepage
 					
 					<article id="post-<?php the_ID(); ?>" <?php post_class('clearfix'); ?> role="article">
 
+						<?php // hero unit removed ?>
+
 						<section class="row-fluid post_content">
 						
 							<div class="span8">
@@ -85,40 +87,10 @@ Template Name: Homepage
 						</section> <!-- end article header -->
 
 						<section class="target-group-areas">
-							<ul class="thumbnails">
-								<li class="span4">
-									<div class="thumbnail">
-										<img alt=>
-										<div class="caption">
-											<h3>Thumbnail label</h3>
-											<p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-											<p><a class="btn btn-primary" href="#">Action</a> <a class="btn" href="#">Action</a></p>
-										</div>
-									</div>
-								</li>
 
-								<li class="span4">
-									<div class="thumbnail">
-										<img alt=>
-										<div class="caption">
-											<h3>Thumbnail label</h3>
-											<p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-											<p><a class="btn btn-primary" href="#">Action</a> <a class="btn" href="#">Action</a></p>
-										</div>
-									</div>
-								</li>
-
-								<li class="span4">
-									<div class="thumbnail">
-										<img alt=>
-										<div class="caption">
-											<h3>Thumbnail label</h3>
-											<p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-											<p><a class="btn btn-primary" href="#">Action</a> <a class="btn" href="#">Action</a></p>
-										</div>
-									</div>
-								</li>
-							</ul>						
+							<?php /* Target group thumbnails on front page is output via custom widget */  ?>
+							<?php if (!function_exists('dynamic_sidebar') || !dynamic_sidebar('target-group-thumbnail')) :
+endif; ?>											
 						</section>
 						
 						<footer>
