@@ -1,0 +1,47 @@
+/*
+ Theme Name:   Wordpress Bootstrap Master Child
+ Theme URI:    
+ Description:  Wordpress Bootstrap Master Child Theme
+ Author:       Benjamin Christensen
+ Author URI:   http://benway.dk
+ Template:     wordpress-bootstrap-master
+ Version:      1.0.0
+ Tags:         light, dark, two-columns, right-sidebar, responsive-layout, accessibility-ready
+ Text Domain:  
+*/
+
+@import url("../wordpress-bootstrap-master/style.css");
+
+/* =Theme customization starts here
+-------------------------------------------------------------- */
+
+/* Opensource.dk specific styles */
+.foss-rules {
+	float: right;
+}
+
+.foss-rules ul {
+	list-style: none;
+	margin-left: 10px;
+}
+
+.foss-rules ul li {
+	background-position: 0 1px;
+	background-repeat: no-repeat;
+	background-size: 12px 12px;
+	vertical-align: middle;
+	margin-right: 15px;
+	padding-left: 16px;
+}
+
+.foss-must li {
+	background-image: url(images/blue-dot@2x.png);
+}
+
+.foss-allowed li {
+	background-image: url(images/green-dot@2x.png);
+}
+
+.foss-forbidden li {
+	background-image: url(images/red-dot@2x.png);
+}
