@@ -43,13 +43,13 @@ Template Name: Homepage
 					                <h4><a href="<?php the_permalink() ?>" rel="bookmark" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a></h4>
 					                <p>
 					                	<?php
-					                		$excerpt_length = 100; // length of excerpt to show (in characters)
+					                		//commenting out this - not a good way to crop text! /Benjamin
+					                		//$excerpt_length = 100; // length of excerpt to show (in characters)
 					                		$the_excerpt = get_the_excerpt(); 
 					                		if($the_excerpt != ""){
-					                			$the_excerpt = substr( $the_excerpt, 0, $excerpt_length );
-					                			echo $the_excerpt . '... ';
+					                			//$the_excerpt = substr( $the_excerpt, 0, $excerpt_length );
+					                			echo $the_excerpt;
 					                	?>
-					                	<a href="<?php the_permalink() ?>" rel="bookmark" title="<?php the_title_attribute(); ?>" class="btn btn-primary">Read more &rsaquo;</a>
 					                	<?php } ?>
 					                </p>
 

@@ -12,10 +12,14 @@
 
 @import url("../wordpress-bootstrap-master/style.css");
 
-/* =Theme customization starts here
--------------------------------------------------------------- */
+/* ==========================================================================
+   Opensource.dk specific styles
+   ========================================================================== */
 
-/* Opensource.dk specific styles */
+
+/* Licenses page
+   ========================================================================== */
+
 .foss-rules {
 	float: right;
 }
@@ -46,6 +50,13 @@
 	background-image: url(images/red-dot@2x.png);
 }
 
+/* Homepage carousel
+   ========================================================================== */
+
 #text-5.span4 {
 	width:inherit;
+}
+
+.carousel-caption a.btn-primary {
+	margin: 0 0 18px 10px;
 }
