@@ -26,7 +26,14 @@ Template Name: Homepage
 							global $post;
 							$tmp_post = $post;
 							$show_posts = of_get_option('slider_options');
-							$args = array( 'numberposts' => $show_posts ); // set this to how many posts you want in the carousel
+							// Get cases and posts promoted to front page (tagged with Forside, ID = 27)
+							$args = array(
+								 'numberposts' => $show_posts,
+								 'orderby' => 'rand',
+								 'post_type' => array( 'case', 'post' ), 
+								 'category' => '27',
+								 'post_status' => 'publish'
+							);
 							$myposts = get_posts( $args );
 							$post_num = 0;
 							foreach( $myposts as $post ) :	setup_postdata($post);
