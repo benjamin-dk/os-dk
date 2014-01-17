@@ -21,7 +21,7 @@ if (function_exists('register_sidebar')) {
 }
 
 /**
- * Custom function to remove h-tags from excerpt
+ * Custom function to remove h-tags from excerpt and set length
  * @param  string $excerpt [description]
  * @return [type]          [description]
  */
@@ -39,7 +39,7 @@ $regex = '#(<h([1-6])[^>]*>)\s?(.*)?\s?(<\/h\2>)#';
         $excerpt = preg_replace($regex,'', $excerpt);
         $excerpt = $excerpt . '...';
 
-        $excerpt_length = apply_filters('excerpt_length', 20);
+        $excerpt_length = apply_filters('excerpt_length', 10);
         $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]');
         $excerpt = wp_trim_words( $excerpt, $excerpt_length, $excerpt_more );
 
@@ -56,7 +56,8 @@ add_filter( 'get_the_excerpt', 'wp_strip_header_tags', 9);
  */
 function new_excerpt_more($more) {
     global $post;
-    return ' ... <a href="<?php the_permalink() ?>" rel="bookmark" title="<?php the_title_attribute(); ?>" class="btn btn-primary">Læs mere &rsaquo;</a>';
+    $more_link = ' ... <a href="' . get_permalink() . '" rel="bookmark" title="' . urlencode(the_title_attribute('echo=0')) . '" class="btn btn-primary">Læs mere &rsaquo;</a>';
+    return $more_link;
 }
 add_filter('excerpt_more', 'new_excerpt_more');
 
@@ -70,6 +71,48 @@ function child_theme_setup() {
     //remove_filter( 'get_the_excerpt', 'twentyeleven_custom_excerpt_more' );
 }
 add_action( 'after_setup_theme', 'child_theme_setup' );
+
+/**
+ * New content type for Open source cases
+ * @return [type] [description]
+ */
+function opensource_custom_init() {
+  $labels = array(
+    'name'               => 'Cases',
+    'singular_name'      => 'Case',
+    'add_new'            => 'Add New',
+    'add_new_item'       => 'Add New Case',
+    'edit_item'          => 'Edit Case',
+    'new_item'           => 'New Case',
+    'all_items'          => 'All Cases',
+    'view_item'          => 'View Case',
+    'search_items'       => 'Search Cases',
+    'not_found'          => 'No Cases found',
+    'not_found_in_trash' => 'No Cases found in Trash',
+    'parent_item_colon'  => '',
+    'menu_name'          => 'Cases'
+  );
+
+  $args = array(
+    'labels'             => $labels,
+    'public'             => true,
+    'publicly_queryable' => true,
+    'show_ui'            => true,
+    'show_in_menu'       => true,
+    'query_var'          => true,
+    'rewrite'            => array( 'slug' => 'case' ),
+    'capability_type'    => 'post',
+    'has_archive'        => true,
+    'hierarchical'       => false,
+    'menu_position'      => null,
+    'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields' ),
+    'taxonomies'         => array( 'category', 'post_tag')
+  );
+
+  register_post_type( 'case', $args );
+}
+add_action( 'init', 'opensource_custom_init' );
+
 
 /**
  * Add child theme javascripts
