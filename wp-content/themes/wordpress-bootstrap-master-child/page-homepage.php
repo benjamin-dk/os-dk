@@ -89,11 +89,11 @@ Template Name: Homepage
 								
 							</div>
 							
-							<?php /* we dont want the sidebar for now */ //get_sidebar('sidebar2'); // sidebar 2 ?>
+							<?php /* we dont want the sidebar on the front page */ //get_sidebar('sidebar2'); // sidebar 2 ?>
 													
 						</section> <!-- end article header -->
 
-						<section class="target-group-areas">
+						<section class="target-group-areas clearfix">
 
 							<?php /* Target group thumbnails on front page is output via custom widget */  ?>
 							<?php if (!function_exists('dynamic_sidebar') || !dynamic_sidebar('target-group-thumbnail')) :

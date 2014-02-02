@@ -52,7 +52,7 @@ add_filter( 'get_the_excerpt', 'wp_strip_header_tags', 9);
 /**
  * Replaces the excerpt "more" text by a button
  * @param  [type] $more [description]
- * @return [type]       [description]
+ * @return string $more_link The HTML to be displayed as a more link
  */
 function new_excerpt_more($more) {
     global $post;
@@ -64,7 +64,6 @@ add_filter('excerpt_more', 'new_excerpt_more');
 
 /**
  * override parent theme's 'more' text for excerpts
- * @return [type] [description]
  */
 function child_theme_setup() {
     remove_filter( 'excerpt_more', 'bones_excerpt_more' ); 
@@ -73,8 +72,42 @@ function child_theme_setup() {
 add_action( 'after_setup_theme', 'child_theme_setup' );
 
 /**
+ * Add custom taxonomies for opensource.dk
+ *
+ * Additional custom taxonomies can be defined here
+ * http://codex.wordpress.org/Function_Reference/register_taxonomy
+ */
+function add_custom_taxonomies() {
+    // Add new "License" taxonomy to Posts and Cases
+    register_taxonomy('license', array( 'case', 'post' ), array(
+        // Hierarchical taxonomy (like categories)
+        'hierarchical' => true,
+        // This array of options controls the labels displayed in the WordPress Admin UI
+        'labels' => array(
+            'name' => _x( 'Licenser', 'taxonomy general name' ),
+            'singular_name' => _x( 'Licens', 'taxonomy singular name' ),
+            'search_items' =>  __( 'Søg Licenser' ),
+            'all_items' => __( 'Alle Licenser' ),
+            'parent_item' => __( 'Parent Licens' ),
+            'parent_item_colon' => __( 'Parent Licens:' ),
+            'edit_item' => __( 'Redigér Licens' ),
+            'update_item' => __( 'Opdater Licens' ),
+            'add_new_item' => __( 'Tilføj ny Licens' ),
+            'new_item_name' => __( 'Ny Licens navn' ),
+            'menu_name' => __( 'Licenser' ),
+        ),
+        // Control the slugs used for this taxonomy
+        'rewrite' => array(
+            'slug' => 'licenser', // This controls the base slug that will display before each term
+            'with_front' => false, // Don't display the category base before "/locations/"
+            'hierarchical' => true // This will allow URL's like "/locations/boston/cambridge/"
+        ),
+    ));
+}
+add_action( 'init', 'add_custom_taxonomies', 0 );
+
+/**
  * New content type for Open source cases
- * @return [type] [description]
  */
 function opensource_custom_init() {
   $labels = array(
@@ -106,13 +139,25 @@ function opensource_custom_init() {
     'hierarchical'       => false,
     'menu_position'      => null,
     'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields' ),
-    'taxonomies'         => array( 'category', 'post_tag')
+    'taxonomies'         => array( 'category', 'post_tag', 'license')
   );
 
   register_post_type( 'case', $args );
 }
 add_action( 'init', 'opensource_custom_init' );
 
+/**
+ * Adding support for custom thumbnails sizes
+ */
+add_theme_support( 'post-thumbnails' );
+
+
+/**
+ * Add automatic image sizes
+ */
+if ( function_exists( 'add_image_size' ) ) {
+    add_image_size( 'sidebar-thumb', 220, 180 ); // Soft Crop Mode
+}
 
 /**
  * Add child theme javascripts
