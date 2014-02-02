@@ -159,6 +159,14 @@ if ( function_exists( 'add_image_size' ) ) {
     add_image_size( 'sidebar-thumb', 220, 180 ); // Soft Crop Mode
 }
 
+function opensource_custom_type_in_categories( $query ) {
+    if ( $query->is_main_query()
+    && ( $query->is_category() || $query->is_tag() ) ) {
+        $query->set( 'post_type', array( 'post', 'case' ) );
+    }
+}
+add_action( 'pre_get_posts', 'opensource_custom_type_in_categories' );
+
 /**
  * Add child theme javascripts
  **/
