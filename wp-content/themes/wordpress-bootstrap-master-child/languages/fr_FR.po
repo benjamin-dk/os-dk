@@ -1,0 +1,415 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WPBS (fr_FR)\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-10-17 23:02-0300\n"
+"PO-Revision-Date: 2014-03-19 15:12:08+0000\n"
+"Last-Translator: Alexandre JULIEN <alex.julien13@gmail.com>\n"
+"Language-Team: Alexandre JULIEN <http://www.alexandre-julien.com> <alex.julien13@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-Language: \n"
+"X-Poedit-Country: \n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: /Users/kafran/Documents/wordpress-bootstrap\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: 404.php:13
+#@ wordpress-bootstrap-master
+msgid "Epic 404 - Article Not Found"
+msgstr "Erreur 404 - Article non trouvé"
+
+#: 404.php:14
+#@ wordpress-bootstrap-master
+msgid "This is embarassing. We can't find what you were looking for."
+msgstr "C'est embarrassant. Nous ne trouvons pas ce que vous cherchez."
+
+#: 404.php:22
+#@ wordpress-bootstrap-master
+msgid "Whatever you were looking for was not found, but maybe try looking again or search using the form below."
+msgstr "Ce que vous chercher n'a pas été trouvé, mais essayer de chercher à nouveau ou effectuez une recherche avec le formulaire ci-dessous."
+
+#: archive.php:10
+#@ wordpress-bootstrap-master
+msgid "Posts Categorized:"
+msgstr "Articles catégorisés:"
+
+#: archive.php:14
+#@ wordpress-bootstrap-master
+msgid "Posts Tagged:"
+msgstr "Articles taggés:"
+
+#: archive.php:18 author.php:8
+#@ wordpress-bootstrap-master
+msgid "Posts By:"
+msgstr "Ecrit par:"
+
+#: archive.php:22
+#@ wordpress-bootstrap-master
+msgid "Daily Archives:"
+msgstr "Archives du jour:"
+
+#: archive.php:26
+#@ wordpress-bootstrap-master
+msgid "Monthly Archives:"
+msgstr "Archives mensuelles:"
+
+#: archive.php:30
+#@ wordpress-bootstrap-master
+msgid "Yearly Archives:"
+msgstr "Archives annuelles:"
+
+#: archive.php:43 attachment.php:15 author.php:31 image.php:23 index.php:34
+#: search.php:17 single.php:17
+#@ wordpress-bootstrap-master
+msgid "Posted"
+msgstr "Ecrit"
+
+#: archive.php:43 attachment.php:15 author.php:31 image.php:23 index.php:34
+#: search.php:17 single.php:17
+#@ wordpress-bootstrap-master
+msgid "by"
+msgstr "par"
+
+#: archive.php:43 attachment.php:15 author.php:31 index.php:34 search.php:17
+#: single.php:17
+#@ wordpress-bootstrap-master
+msgid "filed under"
+msgstr "déposé en vertu de"
+
+#: archive.php:70 author.php:58 index.php:59 search.php:42
+#@ wordpress-bootstrap-master
+msgid "&laquo; Older Entries"
+msgstr "&laquo; Anciens articles"
+
+#: archive.php:71 author.php:59 index.php:60 search.php:43
+#@ wordpress-bootstrap-master
+msgid "Newer Entries &raquo;"
+msgstr "Articles récents &raquo;"
+
+#: archive.php:81 author.php:69
+#@ wordpress-bootstrap-master
+msgid "No Posts Yet"
+msgstr "Pas encore d'article"
+
+#: archive.php:84 author.php:72
+#@ wordpress-bootstrap-master
+msgid "Sorry, What you were looking for is not here."
+msgstr "Désolé, Qu'est-ce que vous recherchez n'est pas ici."
+
+#: attachment.php:27 image.php:53 index.php:44 page-full-width.php:30
+#: page-homepage.php:109 page-left-sidebar.php:32 page.php:24 single.php:30
+#@ wordpress-bootstrap-master
+msgid "Tags"
+msgstr "Tags"
+
+#: attachment.php:41 image.php:67 index.php:69 page-full-width.php:44
+#: page-homepage.php:126 page-left-sidebar.php:46 page.php:38 search.php:54
+#: single.php:51
+#@ wordpress-bootstrap-master
+msgid "Not Found"
+msgstr "Non trouvé"
+
+#: attachment.php:44 image.php:70 index.php:72 page-full-width.php:47
+#: page-homepage.php:129 page-left-sidebar.php:49 page.php:41 search.php:57
+#: single.php:54
+#@ wordpress-bootstrap-master
+msgid "Sorry, but the requested resource was not found on this site."
+msgstr "Désolé, mais la ressource demandée n'a pas été trouvée sur ce site."
+
+#: comments.php:11
+#@ wordpress-bootstrap-master
+msgid "This post is password protected. Enter the password to view comments."
+msgstr "Ce poste est protégé par mot. Entrez le mot de passe pour accéder aux commentaires."
+
+#: comments.php:21
+#@ wordpress-bootstrap-master
+msgid "No"
+msgstr "Non"
+
+#: comments.php:21
+#@ wordpress-bootstrap-master
+msgid "Responses"
+msgstr "Réponses"
+
+#: comments.php:21
+#@ wordpress-bootstrap-master
+msgid "One"
+msgstr "Un"
+
+#: comments.php:21
+#@ wordpress-bootstrap-master
+msgid "Response"
+msgstr "Réponse"
+
+#: comments.php:21
+#@ wordpress-bootstrap-master
+msgid "to"
+msgstr "à"
+
+#: comments.php:25 comments.php:46
+#@ wordpress-bootstrap-master
+msgid "Older comments"
+msgstr "Anciens commentaires"
+
+#: comments.php:26 comments.php:47
+#@ wordpress-bootstrap-master
+msgid "Newer comments"
+msgstr "Commentaires récents"
+
+#: comments.php:68
+#@ wordpress-bootstrap-master
+msgid "Comments are closed"
+msgstr "Les commentaires sont fermés"
+
+#: comments.php:81
+#@ wordpress-bootstrap-master
+msgid "Leave a Reply"
+msgstr "Laissez une réponse"
+
+#: comments.php:81
+#@ wordpress-bootstrap-master
+msgid "Leave a Reply to"
+msgstr "Laissez une réponse à"
+
+#: comments.php:84
+#@ wordpress-bootstrap-master
+msgid "Cancel"
+msgstr "Annuler"
+
+#: comments.php:89
+#@ wordpress-bootstrap-master
+msgid "You must be"
+msgstr "Vous devez être"
+
+#: comments.php:89
+#@ wordpress-bootstrap-master
+msgid "logged in"
+msgstr "se connecter"
+
+#: comments.php:89
+#@ wordpress-bootstrap-master
+msgid "to post a comment"
+msgstr "pour mettre un commentaire"
+
+#: comments.php:97
+#@ wordpress-bootstrap-master
+msgid "Logged in as"
+msgstr "Connecté en tant que"
+
+#: comments.php:97
+#@ wordpress-bootstrap-master
+msgid "Log out of this account"
+msgstr "Se déconnecter de ce compte"
+
+#: comments.php:97
+#@ wordpress-bootstrap-master
+msgid "Log out"
+msgstr "Déconnection"
+
+#: comments.php:105
+#@ wordpress-bootstrap-master
+msgid "Name"
+msgstr "Nom"
+
+#: comments.php:107
+#@ wordpress-bootstrap-master
+msgid "Your Name"
+msgstr "Votre nom"
+
+#: comments.php:114
+#@ wordpress-bootstrap-master
+msgid "Mail"
+msgstr "E-mail"
+
+#: comments.php:116
+#@ wordpress-bootstrap-master
+msgid "Your Email"
+msgstr "Votre e-mail"
+
+#: comments.php:117
+#@ wordpress-bootstrap-master
+msgid "will not be published"
+msgstr "Se sera pas publier"
+
+#: comments.php:124
+#@ wordpress-bootstrap-master
+msgid "Website"
+msgstr "Site Web"
+
+#: comments.php:126
+#@ wordpress-bootstrap-master
+msgid "Your Website"
+msgstr "Votre Site Web"
+
+#: comments.php:137
+#@ wordpress-bootstrap-master
+msgid "Your Comment Here…"
+msgstr "Laissez un commentaire ici"
+
+#: comments.php:142
+#@ wordpress-bootstrap-master
+msgid "Submit Comment"
+msgstr "Soumettre le commentaire"
+
+#: functions.php:147
+#@ wordpress-bootstrap-master
+msgid "Edit"
+msgstr "Editer"
+
+#: functions.php:151
+#@ wordpress-bootstrap-master
+msgid "Your comment is awaiting moderation."
+msgstr "Votre commentaire est en attente de modération."
+
+#: functions.php:193
+#@ wordpress-bootstrap-master
+msgid "Search for:"
+msgstr "Recherche pour:"
+
+#: functions.php:208
+#@ wordpress-bootstrap-master
+msgid "This post is password protected. To view it please enter your password below:"
+msgstr "Cet article est protégé par un mot de passe. Pour l'afficher, veuillez saisir le mot de passe :"
+
+#: functions.php:209
+#@ wordpress-bootstrap-master
+msgid "Password:"
+msgstr "Mot de passe:"
+
+#: header.php:116 searchform.php:5
+#@ wordpress-bootstrap-master
+msgid "Search"
+msgstr "Recherche"
+
+#: image.php:89
+#@ wordpress-bootstrap-master
+msgid "Image metadata"
+msgstr "Information de l'image"
+
+#: image.php:113
+#@ wordpress-bootstrap-master
+msgid "Date Taken"
+msgstr "Date de prise"
+
+#: image.php:115
+#@ wordpress-bootstrap-master
+msgid "Copyright"
+msgstr "Tous droits réservés (copyright)"
+
+#: image.php:117
+#@ wordpress-bootstrap-master
+msgid "Credit"
+msgstr "Sources"
+
+#: image.php:119
+#@ wordpress-bootstrap-master
+msgid "Title"
+msgstr "Titre"
+
+#: image.php:121
+#@ wordpress-bootstrap-master
+msgid "Caption"
+msgstr "Libellé"
+
+#: image.php:123
+#@ wordpress-bootstrap-master
+msgid "Camera"
+msgstr "Appareil photo"
+
+#: image.php:125
+#@ wordpress-bootstrap-master
+msgid "Focal Length"
+msgstr "Focale"
+
+#: image.php:127
+#@ wordpress-bootstrap-master
+msgid "Aperture"
+msgstr "Ouverture"
+
+#: image.php:129
+#@ wordpress-bootstrap-master
+msgid "ISO"
+msgstr "ISO"
+
+#: image.php:131
+#@ wordpress-bootstrap-master
+msgid "Shutter Speed"
+msgstr "Vitesse d'obturation"
+
+#: index.php:39
+#@ wordpress-bootstrap-master
+msgid "Read more &raquo;"
+msgstr "En savoir plus &raquo;"
+
+#: search.php:7
+#@ wordpress-bootstrap-master
+msgid "Search Results for"
+msgstr "Résultats de recherche pour"
+
+#: search.php:22
+#@ wordpress-bootstrap-master
+msgid "Read more on"
+msgstr "En savoir plus sur"
+
+#: sidebar-sidebar2.php:13 sidebar.php:13
+#@ wordpress-bootstrap-master
+msgid "Please activate some Widgets"
+msgstr "Veuillez activer des Widgets"
+
+#: single.php:36
+#@ wordpress-bootstrap-master
+msgid "Edit post"
+msgstr "Editer l'article"
+
+#: admin/options-framework.php:230
+#@ wordpress-bootstrap-master
+msgid "Click OK to reset. Any theme settings will be lost!"
+msgstr "Cliquez sur OK pour réinitialiser. Tous les paramètres du thème seront perdus."
+
+#: admin/options-framework.php:263
+#@ wordpress-bootstrap-master
+msgid "Default options restored."
+msgstr "Options par défaut restaurées."
+
+#: admin/options-framework.php:304
+#@ wordpress-bootstrap-master
+msgid "Options saved."
+msgstr "Options sauvegardées."
+
+#: admin/options-framework.php:362
+#@ wordpress-bootstrap-master
+msgid "Theme Options"
+msgstr "Paramètre du thême"
+
+#: admin/options-medialibrary-uploader.php:26
+#@ wordpress-bootstrap-master
+msgid "Options Framework Internal Container"
+msgstr "Options internes du Framework Container"
+
+#: admin/options-medialibrary-uploader.php:128
+#@ wordpress-bootstrap-master
+msgid "Upload"
+msgstr "Télécharger"
+
+#: admin/options-medialibrary-uploader.php:151
+#@ wordpress-bootstrap-master
+msgid "View File"
+msgstr "Voir fichier"
+
+#: admin/options-medialibrary-uploader.php:288
+#@ wordpress-bootstrap-master
+msgid "Gallery"
+msgstr "Galerie"
+
+#: admin/options-medialibrary-uploader.php:288
+#@ wordpress-bootstrap-master
+msgid "Previously Uploaded"
+msgstr "Précédemment téléchargé"
+
