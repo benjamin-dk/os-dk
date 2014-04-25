@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: wp-bootstrap v2.3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2014-03-19 17:38+0100\n"
+"PO-Revision-Date: 2014-03-20 10:30+0100\n"
 "Last-Translator: Benjamin Christensen <benjamin@benway.dk>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -117,13 +117,13 @@ msgstr "Newer Entries &raquo;"
 #: archive.php:81
 #: author.php:69
 msgid "No Posts Yet"
-msgstr "No Posts Yet"
+msgstr "Ingen indlæg endnu"
 
 #@ wordpress-bootstrap-master
 #: archive.php:84
 #: author.php:72
 msgid "Sorry, What you were looking for is not here."
-msgstr "Sorry, What you were looking for is not here."
+msgstr "Beklager, her er ikke noget at komme efter."
 
 #@ wordpress-bootstrap-master
 #: attachment.php:27
