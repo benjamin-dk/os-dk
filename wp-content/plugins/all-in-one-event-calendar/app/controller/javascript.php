@@ -300,7 +300,7 @@ class Ai1ec_Javascript_Controller {
 		if ( false === $script_to_load ) {
 			$script_to_load = apply_filters( 'ai1ec_backend_js', self::LOAD_ONLY_BACKEND_SCRIPTS );
 		}
-		if ( current_user_can( 'manage_options' ) && 
+		if ( current_user_can( 'manage_options' ) &&
 			$this->_registry->get( 'model.settings' )->get( 'show_tracking_popup' )
 		) {
 			wp_enqueue_style( 'wp-pointer' );
@@ -421,8 +421,10 @@ class Ai1ec_Javascript_Controller {
 			'day_names'                      => $locale->get_localized_week_names(),
 			// Start the week on this day in the date picker
 			'week_start_day'                 => $settings->get( 'week_start_day' ),
+			'week_view_starts_at'            => $settings->get( 'week_view_starts_at' ),
+			'week_view_ends_at'              => $settings->get( 'week_view_ends_at' ),
 			'blog_timezone'                  => $blog_timezone,
-			'show_tracking_popup'            => 
+			'show_tracking_popup'            =>
 				current_user_can( 'manage_options' ) && $settings->get( 'show_tracking_popup' ),
 		);
 		return $data;
@@ -484,7 +486,12 @@ class Ai1ec_Javascript_Controller {
 				'type' => 'text/javascript'
 			)
 			);
-			$http_encoder->encode();
+			$compression_level = null;
+			if ( $this->_registry->get( 'model.settings' )->get( 'disable_gzip_compression' ) ) {
+				// set the compression level to 0 to disable it.
+				$compression_level = 0;
+			}
+			$http_encoder->encode( $compression_level );
 			$http_encoder->sendAll();
 		}
 		Ai1ec_Http_Response_Helper::stop( 0 );
@@ -544,13 +551,17 @@ JSC;
 		if( true === is_page( $this->_settings->get( 'calendar_page_id' ) ) ) {
 			$is_calendar_page = self::TRUE_PARAM;
 		}
-		$url = $this->_template_link_helper->get_site_url() . '?' .
+		$url = add_query_arg(
+			array(
 				// Add the page to load
-				self::LOAD_JS_PARAMETER . '=' . $page . '&' .
+				self::LOAD_JS_PARAMETER    => $page,
 				// If we are in the backend, we must load the common scripts
-				self::IS_BACKEND_PARAMETER . '=' . $load_backend_script . '&' .
+				self::IS_BACKEND_PARAMETER => $load_backend_script,
 				// If we are on the calendar page we must load the correct option
-				self::IS_CALENDAR_PAGE . '=' . $is_calendar_page;
+				self::IS_CALENDAR_PAGE     => $is_calendar_page,
+			),
+			trailingslashit( $this->_template_link_helper->get_site_url() )
+		);
 		if ( true === $backend ) {
 			$this->_scripts_helper->enqueue_script(
 					self::JS_HANDLE,

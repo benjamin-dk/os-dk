@@ -12,11 +12,11 @@
 					{# Display Reveal button in last cell only #}
 					{% if show_reveal_button and loop.last %}
 						<div class="ai1ec-reveal-full-day">
-							<button class="ai1ec-btn ai1ec-btn-default ai1ec-btn-sm
+							<button class="ai1ec-btn ai1ec-btn-info ai1ec-btn-xs
 									ai1ec-tooltip-trigger"
 								data-placement="left"
-								title="{{ 'Reveal full day' | __ | e('html_attr') }}">
-								<i class="ai1ec-fa ai1ec-fa-resize-full ai1ec-fa-lg"></i>
+								title="{{ text_full_day | e('html_attr') }}">
+								<i class="ai1ec-fa ai1ec-fa-expand"></i>
 							</button>
 						</div>
 					{% endif %}
@@ -38,7 +38,7 @@
 					{% if day.today is not empty %}ai1ec-today{% endif %}">
 
 					{% if loop.first %}
-						<div class="ai1ec-allday-label">{{ 'All-day' | __ }}</div>
+						<div class="ai1ec-allday-label">{{ text_all_day }}</div>
 					{% endif %}
 
 					{% for event in day.allday %}
@@ -57,7 +57,7 @@
 									{{ event.get_runtime( 'filtered_title' ) | raw }}
 									{% if show_location_in_title and event.get( 'venue' ) is not empty %}
 										<span class="ai1ec-event-location"
-											>{{ '@ %s' | __ | format( event.get( 'venue' ) ) }}</span>
+											>{{ text_venue_separator | format( event.get( 'venue' ) ) }}</span>
 									{% endif %}
 								</span>
 							</div>
@@ -65,7 +65,8 @@
 
 						{% block event_popup %}
 							{% include 'event-popup.twig' with {
-								'popup_timespan': event.get( '_orig' ) | timespan( 'short' )
+								'popup_timespan': event.get( '_orig' ) | timespan( 'short' ),
+								'text_venue_separator': text_venue_separator
 								} %}
 						{% endblock event_popup %}
 
@@ -98,7 +99,7 @@
 							{% if day.today is not empty %}
 								<div class="ai1ec-now-marker" style="top: {{ now_top }}px;">
 									<div>
-										{{ 'Now:' | __ }} {{ now_text }}
+										{{ text_now_label }} {{ now_text }}
 									</div>
 								</div>
 							{% endif %}
@@ -122,11 +123,13 @@
 									height: {{ day_array.height }}px;
 									left: {{ day_array.indent * block( 'indent_multiplier' ) + block( 'indent_offset' ) }}px;
 									{{ event.get_runtime( 'color_style' ) }}
-									{% if event.get_runtime( 'faded_color' ) %}
-										{% set rgba1 = event.get_runtime( 'rgba_color ') | format( '0.05' ) %}
-										{% set rgba3 = event.get_runtime( 'rgba_color ') | format( '0.3' ) %}
-										border: 1px solid {{ event.get_runtime( 'faded_color ') }};
-										border-color: {{ event.get_runtime( 'rgba_color ') | format( '0.5' ) }};
+									{% set faded_color = event.get_runtime( 'faded_color' ) %}
+									{% set rgba_color  = event.get_runtime( 'rgba_color' ) %}
+									{% if faded_color is not empty %}
+										{% set rgba1 = rgba_color | format( '0.05' ) %}
+										{% set rgba3 = rgba_color | format( '0.3' ) %}
+										border: 1px solid {{ faded_color }};
+										border-color: {{ rgba_color | format( '0.5' ) }};
 										background-image: -webkit-linear-gradient( top, {{ rgba1 }}, {{ rgba3 }} 50px );
 										background-image: -moz-linear-gradient( top, {{ rgba1 }}, {{ rgba3 }} 50px );
 										background-image: -ms-linear-gradient( top, {{ rgba1 }}, {{ rgba3 }} 50px );
@@ -150,7 +153,7 @@
 										{{ event.get_runtime( 'filtered_title' ) | raw }}
 										{% if show_location_in_title and event.get( 'venue' ) is not empty %}
 											<span class="ai1ec-event-location"
-												>{{ '@ %s' | __ | format( event.get( 'venue' ) ) }}</span>
+												>{{ text_venue_separator | format( event.get( 'venue' ) ) }}</span>
 										{% endif %}
 									</span>
 								</div>

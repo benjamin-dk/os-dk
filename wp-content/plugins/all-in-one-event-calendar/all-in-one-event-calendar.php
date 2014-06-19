@@ -5,7 +5,7 @@
  * Description: A calendar system with month, week, day, agenda views, upcoming events widget, color-coded categories, recurrence, and import/export of .ics feeds.
  * Author: Time.ly Network Inc.
  * Author URI: http://time.ly/
- * Version: 2.0.5
+ * Version: 2.0.13
  * Text Domain: all-in-one-event-calendar
  * Domain Path: /language
  */
@@ -71,11 +71,13 @@ require $ai1ec_base_dir . DIRECTORY_SEPARATOR . 'lib' .
 require $ai1ec_base_dir . DIRECTORY_SEPARATOR . 'lib' .
 	DIRECTORY_SEPARATOR . 'global-functions.php';
 
+require $ai1ec_base_dir . DIRECTORY_SEPARATOR . 'app' .
+	DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'extension.php';
+
+require $ai1ec_base_dir . DIRECTORY_SEPARATOR . 'app' .
+	DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'extension-license.php';
+
 $ai1ec_loader = new Ai1ec_Loader( $ai1ec_base_dir );
-$ai1ec_loader->register_map(
-	$ai1ec_base_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR .
-	'composer' . DIRECTORY_SEPARATOR . 'autoload_classmap.php'
-);
 @ini_set( 'unserialize_callback_func', 'spl_autoload_call' );
 spl_autoload_register( array( $ai1ec_loader, 'load' ) );
 

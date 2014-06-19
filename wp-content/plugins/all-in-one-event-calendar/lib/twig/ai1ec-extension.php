@@ -17,7 +17,7 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	protected $_registry;
 
 	/**
-	 * Injkects the registry object.
+	 * Inject the registry object.
 	 *
 	 * @param Ai1ec_Registry_Object $registry
 	 */
@@ -36,6 +36,11 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 		);
 	}
 
+	/**
+	 * Twig callback - return a list of filters registered by this extension.
+	 *
+	 * @return array
+	 */
 	public function getFilters() {
 		return array(
 			new Twig_SimpleFilter( 'truncate',          array( $this, 'truncate' ) ),
@@ -49,6 +54,17 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 			new Twig_SimpleFilter( 'theme_img_url',     array( $this, 'theme_img_url' ) ),
 			new Twig_SimpleFilter( 'date_i18n',         array( $this, 'date_i18n' ) ),
 			new Twig_SimpleFilter( '__',                'Ai1ec_I18n::__' ),
+		);
+	}
+
+	/**
+	 * Twig callback - return a list of tests registered by this extension.
+	 *
+	 * @return array
+	 */
+	public function getTests() {
+		return array(
+			new Twig_SimpleTest( 'string', array( $this, 'is_string' ) ),
 		);
 	}
 
@@ -84,7 +100,18 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	}
 
 	/**
-	 * Convert an hour to timestamp.
+	 * Check if provided value is a string.
+	 *
+	 * @param mixed $var Suspected string
+	 *
+	 * @return boolean True if it is a string, false otherwise.
+	 */
+	public function is_string( $var ) {
+		return is_string( $var );
+	}
+
+	/**
+	 * Convert an hour to an Ai1ec_Date_Time object.
 	 *
 	 * @param int $hour
 	 *
@@ -96,7 +123,7 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	}
 
 	/**
-	 * Get the name of the weekday
+	 * Get the name of the weekday.
 	 *
 	 * @param int $unix_timestamp
 	 *
@@ -108,7 +135,7 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	}
 
 	/**
-	 * Get the name of the day
+	 * Get the name of the day.
 	 *
 	 * @param int $unix_timestamp
 	 *
@@ -120,7 +147,7 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	}
 
 	/**
-	 * Get the name of the month
+	 * Get the name of the month.
 	 *
 	 * @param int $unix_timestamp
 	 *
@@ -132,7 +159,7 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	}
 
 	/**
-	 * Get the name of the year
+	 * Get the date's year
 	 *
 	 * @param int $unix_timestamp
 	 *
@@ -140,11 +167,11 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	 */
 	public function year( $unix_timestamp ) {
 		return $this->_registry->get( 'date.time', $unix_timestamp )
-			->format_i18n( 'M' );
+			->format_i18n( 'Y' );
 	}
 
 	/**
-	 * Convert a timestamp to an int
+	 * Get URL of the given image file in the calendar theme's directory.
 	 *
 	 * @param int $unix_timestamp
 	 *
@@ -156,7 +183,7 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	}
 
 	/**
-	 * Convert a timestamp to a string using the desired format
+	 * Internationalize the given UNIX timestamp with the given format string.
 	 *
 	 * @param int $unix_timestamp
 	 * @param string $format
@@ -235,7 +262,10 @@ class Ai1ec_Twig_Ai1ec_Extension extends Twig_Extension {
 	 *
 	 * @return string Rendered HTML timespan block.
 	 */
-	public function timespan( Ai1ec_Event $event, $start_date_display = 'long' ) {
+	public function timespan(
+		Ai1ec_Event $event,
+		$start_date_display = 'long'
+	) {
 		return $this->_registry->get( 'view.event.time' )
 			->get_timespan_html( $event, $start_date_display );
 	}

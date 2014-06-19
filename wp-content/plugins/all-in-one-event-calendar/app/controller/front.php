@@ -241,16 +241,16 @@ class Ai1ec_Front_Controller {
 		$option = $this->_registry->get( 'model.option' );
 		$theme  = $option->get( 'ai1ec_current_theme', array() );
 		$update = false;
-
+		$default_theme  = array(
+			'theme_dir'  => AI1EC_DEFAULT_THEME_PATH,
+			'theme_root' => AI1EC_DEFAULT_THEME_ROOT,
+			'theme_url'  => AI1EC_THEMES_URL . '/' . AI1EC_DEFAULT_THEME_NAME,
+			'stylesheet' => AI1EC_DEFAULT_THEME_NAME,
+			'legacy'     => false,
+		);
 		// Theme setting is undefined; default to Vortex.
 		if ( empty( $theme ) ) {
-			$theme  = array(
-				'theme_dir'  => AI1EC_DEFAULT_THEME_PATH,
-				'theme_root' => AI1EC_DEFAULT_THEME_ROOT,
-				'theme_url'  => AI1EC_THEMES_URL . '/' . AI1EC_DEFAULT_THEME_NAME,
-				'stylesheet' => AI1EC_DEFAULT_THEME_NAME,
-				'legacy'     => false,
-			);
+			$theme  = $default_theme;
 			$update = true;
 		}
 		// Legacy settings; in 1.x the active theme was stored as a bare string,
@@ -261,20 +261,21 @@ class Ai1ec_Front_Controller {
 			$legacy      = ! in_array( $theme_name, $core_themes );
 
 			if ( $legacy ) {
-				$root = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . AI1EC_THEMES_FOLDER;
-				$url  = WP_CONTENT_URL . '/' . AI1EC_THEMES_FOLDER . '/' . $theme_name;
+				$root = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . AI1EC_THEME_FOLDER;
+				$url  = WP_CONTENT_URL . '/' . AI1EC_THEME_FOLDER . '/' . $theme_name;
 			} else {
 				$root = AI1EC_DEFAULT_THEME_ROOT;
 				$url  = AI1EC_THEMES_URL . '/' . $theme_name;
 			}
-
+			// if it's from 1.x, move folders to avoid confusion
+			$this->_registry->get( 'theme.search' )->move_themes_to_backup( $core_themes );
 			// Ensure existence of theme directory.
 			if ( ! is_dir( $root . DIRECTORY_SEPARATOR . $theme_name ) ) {
 				// It's missing; something is wrong with this theme. Reset theme to
 				// Vortex and warn the user accordingly.
 				$option->set( 'ai1ec_current_theme', $default_theme );
-
-				$notification = $this->_registry->get( 'notification.admin',
+				$notification = $this->_registry->get( 'notification.admin' );
+				$notification->store(
 					sprintf(
 						Ai1ec_I18n::__(
 							'Your active calendar theme could not be properly initialized. The default theme has been activated instead. Please visit %s and try reactivating your theme manually.'
@@ -300,7 +301,7 @@ class Ai1ec_Front_Controller {
 		// public beta release.
 		else if ( ! isset( $theme['theme_url'] ) ) {
 			if ( $theme['legacy'] ) {
-				$theme['theme_url'] = WP_CONTENT_URL . '/' . AI1EC_THEMES_FOLDER . '/' .
+				$theme['theme_url'] = WP_CONTENT_URL . '/' . AI1EC_THEME_FOLDER . '/' .
 					$theme['stylesheet'];
 			} else {
 				$theme['theme_url'] = AI1EC_THEMES_URL . '/' . $theme['stylesheet'];
@@ -396,6 +397,25 @@ class Ai1ec_Front_Controller {
 			2
 		);
 
+		$dispatcher->register_filter(
+			'ai1ec_dbi_debug',
+			array( 'http.request', 'debug_filter' )
+		);
+		// editing a child instance
+		if ( basename( $_SERVER['SCRIPT_NAME'] ) === 'post.php' ) {
+			$dispatcher->register_action(
+				'admin_action_editpost',
+				array( 'model.event.parent', 'admin_init_post' )
+			);
+		}
+		// post row action for parent/child
+		$dispatcher->register_action(
+			'post_row_actions',
+			array( 'model.event.parent', 'post_row_actions' ),
+			10,
+			2
+		);
+
 		// Category colors
 		$dispatcher->register_action(
 			'events_categories_add_form_fields',
@@ -428,11 +448,22 @@ class Ai1ec_Front_Controller {
 			array( 'view.calendar.widget', 'register_widget' )
 		);
 
+		// register ICS cron action
+		$dispatcher->register_action(
+			Ai1ecIcsConnectorPlugin::HOOK_NAME,
+			array( 'calendar-feed.ics', 'cron' )
+		);
+
 		if ( is_admin() ) {
 			// get the repeat box
 			$dispatcher->register_action(
 				'wp_ajax_ai1ec_get_repeat_box',
 				array( 'view.admin.get-repeat-box', 'get_repeat_box' )
+			);
+			// add dismissable notice handler
+			$dispatcher->register_action(
+				'wp_ajax_ai1ec_dismiss_notice',
+				array( 'notification.admin', 'dismiss_notice' )
 			);
 			// save rrurle and convert it to text
 			$dispatcher->register_action(
@@ -558,9 +589,19 @@ class Ai1ec_Front_Controller {
 				'plugin_action_links_' . AI1EC_PLUGIN_BASENAME,
 				array( 'view.admin.nav', 'plugin_action_links' )
 			);
+			if ( $this->_registry->get( 'robots.helper' )->pre_check() ) {
+				$dispatcher->register_action(
+					'admin_init',
+					array( 'robots.helper', 'install' )
+				);
+			}
+			$dispatcher->register_action(
+				'wp_ajax_ai1ec_rescan_cache',
+				array( 'twig.cache', 'rescan' )
+			);
 			$dispatcher->register_action(
 				'admin_init',
-				array( 'robots.helper', 'install' )
+				array( 'environment.check', 'run_checks' )
 			);
 		} else { // ! is_admin()
 			$dispatcher->register_shortcode(
@@ -571,9 +612,13 @@ class Ai1ec_Front_Controller {
 				'after_setup_theme',
 				array( 'theme.loader', 'execute_theme_functions' )
 			);
+			$dispatcher->register_action(
+				'the_post',
+				array( 'post.content', 'check_content' ),
+				PHP_INT_MAX
+			);
 		}
 	}
-
 	/**
 	 * Outputs menu icon between head tags
 	 */
@@ -722,8 +767,10 @@ class Ai1ec_Front_Controller {
 	 * @return void Method does not return
 	 */
 	protected function _initialize_registry( $ai1ec_loader ) {
+		global $ai1ec_registry;
 		$this->_registry = new Ai1ec_Registry_Object( $ai1ec_loader );
 		Ai1ec_Time_Utility::set_registry( $this->_registry );
+		$ai1ec_registry  = $this->_registry;
 	}
 
 	/**
@@ -774,6 +821,15 @@ class Ai1ec_Front_Controller {
 		// or does not exist, then create/update table structure using dbDelta().
 		if ( $option->get( 'ai1ec_db_version' ) != $version ) {
 
+			$errors = $this->_registry->get( 'database.applicator' )
+				->check_db_consistency_for_date_migration() ;
+			if ( ! empty( $errors ) ) {
+				$message = Ai1ec_I18n::__(
+					'Your database is found to be corrupt. Likely previous update has failed. Please restore All-in-One Event Calendar tables from a backup and retry.<br>Following errors were found:<br>%s'
+				);
+				$message = sprintf( $message, implode( $errors, '<br>' ) );
+				throw new Ai1ec_Database_Update_Exception( $message );
+			}
 			$this->_registry->get( 'database.applicator' )
 				->remove_instance_duplicates();
 
@@ -807,20 +863,23 @@ class Ai1ec_Front_Controller {
 	protected  function _migrate_categories_meta() {
 		$db         = $this->_registry->get( 'dbi.dbi' );
 		$table_name = $db->get_table_name( 'ai1ec_event_category_colors' );
-		// Migrate color information
-		$dest_table = $db->get_table_name( 'ai1ec_event_category_meta' );
-		$colors     = $db->select(
-			$table_name,
-			array( 'term_id', 'term_color'),
-			ARRAY_A
-		);
-		if ( ! empty( $colors ) ) {
-			foreach ( $colors as $color ) {
-				$db->insert( $dest_table, $color );
-			}
-		}
-		// Drop the old table
-		$db->query( 'DROP TABLE ' . $table_name );
+                $db_h = $this->_registry->get( 'database.helper' );
+                if ( $db_h->table_exists( $table_name ) ) { // if old table exists otherwise ignore it
+                    // Migrate color information
+                    $dest_table = $db->get_table_name( 'ai1ec_event_category_meta' );
+                    $colors     = $db->select(
+                            $table_name,
+                            array( 'term_id', 'term_color'),
+                            ARRAY_A
+                    );
+                    if ( ! empty( $colors ) ) {
+                            foreach ( $colors as $color ) {
+                                    $db->insert( $dest_table, $color );
+                            }
+                    }
+                    // Drop the old table
+                    $db->query( 'DROP TABLE IF EXISTS ' . $table_name );
+                }
 	}
 
 	/**
@@ -891,7 +950,7 @@ class Ai1ec_Front_Controller {
 		$sql .= "CREATE TABLE $table_name (
 			term_id bigint(20) NOT NULL,
 			term_color varchar(255) NOT NULL,
-			term_image varchar(255) NOT NULL,
+			term_image varchar(254) NULL DEFAULT NULL,
 			PRIMARY KEY  (term_id)
 			) CHARACTER SET utf8;";
 

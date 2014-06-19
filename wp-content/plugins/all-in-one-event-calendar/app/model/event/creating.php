@@ -138,16 +138,7 @@ class Ai1ec_Event_Creating extends Ai1ec_Base {
 			->get( 'date.time', $start_time, $timezone_name );
 		$end_time_entry   = $this->_registry
 			->get( 'date.time', $end_time,   $timezone_name );
-		// If the events is marked as instant, make it last 30 minutes
-		if ( $instant_event ) {
-			$end_time_entry   = $this->_registry
-				->get( 'date.time', $start_time,   $timezone_name );
-			$end_time_entry->set_time( 
-				$end_time_entry->format( 'H' ), 
-				$end_time_entry->format( 'i' ) + 30, 
-				$end_time_entry->format( 's' )
-			);
-		}
+
 		$timezone_name = $start_time_entry->get_timezone();
 		if ( null === $timezone_name ) {
 			$timezone_name = $start_time_entry->get_default_format_timezone();
@@ -155,10 +146,13 @@ class Ai1ec_Event_Creating extends Ai1ec_Base {
 
 		$event->set( 'post_id',          $post_id );
 		$event->set( 'start',            $start_time_entry );
-		$event->set( 'end',              $end_time_entry );
+		if ( $instant_event ) {
+			$event->set_no_end_time();
+		} else {
+			$event->set( 'end',          $end_time_entry );
+		}
 		$event->set( 'timezone_name',    $timezone_name );
 		$event->set( 'allday',           $all_day );
-		$event->set( 'instant_event',    $instant_event );
 		$event->set( 'venue',            $venue );
 		$event->set( 'address',          $address );
 		$event->set( 'city',             $city );
@@ -179,6 +173,7 @@ class Ai1ec_Event_Creating extends Ai1ec_Base {
 		$event->set( 'show_coordinates', $show_coordinates );
 		$event->set( 'longitude',        trim( $longitude ) );
 		$event->set( 'latitude',         trim( $latitude ) );
+		$event->set( 'ical_uid',         $event->get_uid() );
 
 		// let other extensions save their fields.
 		do_action( 'ai1ec_save_post', $event );
@@ -192,4 +187,46 @@ class Ai1ec_Event_Creating extends Ai1ec_Base {
 		return $event;
 	}
 
+	/**
+	 * _create_duplicate_post method
+	 *
+	 * Create copy of event by calling {@uses wp_insert_post} function.
+	 * Using 'post_parent' to add hierarchy.
+	 *
+	 * @param array $data Event instance data to copy
+	 *
+	 * @return int|bool New post ID or false on failure
+	 **/
+	public function create_duplicate_post() {
+		if ( ! isset( $_POST['post_ID'] ) ) {
+			return false;
+		}
+		$clean_fields = array(
+			'ai1ec_repeat'      => NULL,
+			'ai1ec_rrule'       => '',
+			'ai1ec_exrule'      => '',
+			'ai1ec_exdate'      => '',
+			'post_ID'           => NULL,
+			'post_name'         => NULL,
+			'ai1ec_instance_id' => NULL,
+		);
+		$old_post_id = $_POST['post_ID'];
+		$instance_id = $_POST['ai1ec_instance_id'];
+		foreach ( $clean_fields as $field => $to_value ) {
+			if ( NULL === $to_value ) {
+				unset( $_POST[$field] );
+			} else {
+				$_POST[$field] = $to_value;
+			}
+		}
+		$_POST   = _wp_translate_postdata( false, $_POST );
+		$_POST['post_parent'] = $old_post_id;
+		$post_id = wp_insert_post( $_POST );
+		$this->_registry->get( 'model.event.parent' )->event_parent(
+			$post_id,
+			$old_post_id,
+			$instance_id
+		);
+		return $post_id;
+	}
 }

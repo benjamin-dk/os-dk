@@ -216,6 +216,7 @@ class Ai1ecdm_Datetime_Migration {
 			if (
 				! (
 					$this->drop_indices( $table, $name )
+					&& $this->out_of_bounds_fix( $table, $name )
 					&& $this->add_columns( $name, $columns )
 					&& $this->transform_dates( $name, $columns )
 					&& $this->replace_columns( $name, $columns )
@@ -301,7 +302,7 @@ class Ai1ecdm_Datetime_Migration {
 		}
 		$sql_query = 'ALTER TABLE `' . $table . '` ' .
 			implode( ', ', $column_particles );
-		return $this->_dbi->query( $sql_query );
+		return ( false !== $this->_dbi->query( $sql_query ) );
 	}
 
 	/**
@@ -316,9 +317,13 @@ class Ai1ecdm_Datetime_Migration {
 		self::debug( __METHOD__ );
 		$update_particles = array();
 		foreach ( $columns as $column ) {
-			$name = $column . $this->_column_suffix;
+			$name      = $column . $this->_column_suffix;
+			$new_value = '\'1970-01-01 00:00:00\'';
+			if ( 'end' === $column && in_array( 'start', $columns ) ) {
+				$new_value = 'IFNULL(`start`, ' . $new_value . ')';
+			}
 			$update_particles[] = '`' . $name .
-				'` = UNIX_TIMESTAMP( `' . $column . '` )';
+				'` = UNIX_TIMESTAMP( IFNULL(`' . $column . '`, ' . $new_value . ' ))';
 		}
 		$sql_query = 'UPDATE `' . $table . '` SET ' .
 			implode( ', ', $update_particles );
@@ -343,7 +348,7 @@ class Ai1ecdm_Datetime_Migration {
 		}
 		$sql_query = 'ALTER TABLE `' . $table . '` ' .
 			implode( ', ', $snippets );
-		return $this->_dbi->query( $sql_query );
+		return ( false !== $this->_dbi->query( $sql_query ) );
 	}
 
 	/**
@@ -384,7 +389,7 @@ class Ai1ecdm_Datetime_Migration {
 	 */
 	public function drop( $table ) {
 		$sql_query = 'DROP TABLE IF EXISTS ' . $table;
-		return false !== $this->_dbi->query( $sql_query );
+		return ( false !== $this->_dbi->query( $sql_query ) );
 	}
 
 	/**
@@ -418,6 +423,37 @@ class Ai1ecdm_Datetime_Migration {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Return list of tables to be processed
+	 *
+	 * @return array List of tables to be processed
+	 */
+	public function get_tables() {
+		return $this->_tables;
+	}
+
+	/**
+	 * Delete events dated before or at `1970-01-01 00:00:00`.
+	 *
+	 * @param string $table Original table.
+	 * @param string $name  Temporary table to replay changes onto.
+	 *
+	 * @return bool Success.
+	 */
+	public function out_of_bounds_fix( $table, $name ) {
+		static $instances = null;
+		if ( null === $instances ) {
+			$instances = $this->_dbi->get_table_name( 'ai1ec_event_instances' );
+		}
+		if ( $instances !== $table ) {
+			return true;
+		}
+		$query = 'DELETE FROM `' .
+			$this->_dbi->get_table_name( $name ) .
+			'` WHERE `start` <= \'1970-01-01 00:00:00\'';
+		return ( false !== $this->_dbi->query( $query ) );
 	}
 
 	/**

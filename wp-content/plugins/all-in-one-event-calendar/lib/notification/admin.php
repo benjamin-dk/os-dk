@@ -37,36 +37,17 @@ class Ai1ec_Notification_Admin extends Ai1ec_Notification {
 	protected $_message_list = array();
 
 	/**
-	 * Set local variables. Optionally store message, if any passed.
-	 *
-	 * @param Ai1ec_Registry_Object $registry Inejcted object registry.
-	 * @param string $message                 Message to be dispatched.
-	 * @param string $class                   Message box class.
-	 * @param int    $importance              Optional importance parameter.
-	 * @param array  $recipients              List of message recipients.
-	 *
-	 * @return Ai1ec_Notification_Admin
-	 */
-	public function __construct(
-		Ai1ec_Registry_Object $registry,
-		$message          = null,
-		$class            = 'updated',
-		$importance       = 0,
-		array $recipients = array( self::RCPT_ADMIN )
-	) {
-		$this->_registry = $registry;
-		if ( $message ) {
-			$this->store( $message, $class, $importance, $recipients );
-		}
-	}
-
-	/**
 	 * Add message to store.
 	 *
 	 * @param string $message    Actual message.
 	 * @param string $class      Message box class.
 	 * @param int    $importance Optional importance parameter for the message.
+	 * Levels of importance are as following:
+	 *     - 0 - messages limited to Ai1EC pages;
+	 *     - 1 - messages limited to [0] and Plugins/Updates pages;
+	 *     - 2 - messages limited to [1] and Dashboard.
 	 * @param array  $recipients List of message recipients.
+	 * @param bool   $persistent If set to true, messages needs to be dismissed by user.
 	 *
 	 * @return bool Success.
 	 */
@@ -74,11 +55,14 @@ class Ai1ec_Notification_Admin extends Ai1ec_Notification {
 		$message,
 		$class            = 'updated',
 		$importance       = 0,
-		array $recipients = array( self::RCPT_ADMIN )
+		array $recipients = array( self::RCPT_ADMIN ),
+		$persistent = false
 	) {
 		$this->retrieve();
-		$entity  = compact( 'message', 'class', 'importance' );
+		
+		$entity  = compact( 'message', 'class', 'importance', 'persistent' );
 		$msg_key = sha1( json_encode( $entity ) );
+		$entity['msg_key'] = $msg_key;
 		if ( isset( $this->_message_list['_messages'][$msg_key] ) ) {
 			return true;
 		}
@@ -87,7 +71,7 @@ class Ai1ec_Notification_Admin extends Ai1ec_Notification {
 			if ( ! isset( $this->_message_list[$rcpt] ) ) {
 				continue;
 			}
-			$this->_message_list[$rcpt][] = $msg_key;
+			$this->_message_list[$rcpt][$msg_key] = $msg_key;
 		}
 		return $this->write();
 	}
@@ -149,10 +133,15 @@ class Ai1ec_Notification_Admin extends Ai1ec_Notification {
 						$this->_render_message(
 							$this->_message_list['_messages'][$key]
 						);
-						unset( $this->_message_list['_messages'][$key] );
+						if (
+							! isset( $this->_message_list['_messages'][$key]['persistent'] ) ||
+							false === $this->_message_list['_messages'][$key]['persistent']
+						) {
+							unset( $this->_message_list['_messages'][$key] );
+							unset( $this->_message_list[$dst][$key] );
+						}
 					}
 				}
-				$this->_message_list[$dst] = array();
 				$modified                  = true;
 			}
 		}
@@ -160,6 +149,20 @@ class Ai1ec_Notification_Admin extends Ai1ec_Notification {
 			return false;
 		}
 		return $this->write();
+	}
+
+	/**
+	 * Delete a notice from ajax call.
+	 * 
+	 */
+	public function dismiss_notice() {
+		$key = $_POST['key'];
+		foreach ( $this->_message_list as $dest ) {
+			if ( isset( $this->_message_list[$dest][$key] ) ) {
+				unset( $this->_message_list[$dest][$key] );
+			}
+		}
+		$this->write();
 	}
 
 	protected function _render_message( array $entity ) {
@@ -172,6 +175,7 @@ class Ai1ec_Notification_Admin extends Ai1ec_Notification {
 			if ( null === $theme ) {
 				$theme = $this->_registry->get( 'theme.loader' );
 			}
+			$entity['text_label'] = __( 'All-in-One Event Calendar', AI1EC_PLUGIN_NAME );
 			$file = $theme->get_file(
 				'notification/admin.twig',
 				$entity,

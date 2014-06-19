@@ -36,6 +36,17 @@ class Ai1ec_Event_Entity extends Ai1ec_Base {
 	}
 
 	/**
+	 * Handle cloning properly to resist property changes.
+	 *
+	 * @return void
+	 */
+	public function __clone() {
+		$this->_start = $this->_registry->get( 'date.time', $this->_start );
+		$this->_end   = $this->_registry->get( 'date.time', $this->_end );
+		$this->_post  = clone $this->_post;
+	}
+
+	/**
 	 * Change stored property.
 	 *
 	 * @param string $name  Name of property to change.
@@ -56,14 +67,22 @@ class Ai1ec_Event_Entity extends Ai1ec_Base {
 		if ( 'registry' === $name ) {
 			return $this; // short-circuit: protection mean.
 		}
+		if ( 'timezone_name' === $name && empty( $value ) ) {
+			return $this; // protection against invalid TZ values.
+		}
 		$field = '_' . $name;
 		if ( isset( $time_fields[$name] ) ) {
 			// object of Ai1ec_Date_Time type is now handled in it itself
-			$this->{$field}->set_date_time( $value, $this->_timezone_name );
+			$this->{$field}->set_date_time(
+				$value,
+				( null === $this->_timezone_name )
+					? 'UTC'
+					: $this->_timezone_name
+			);
 		} else {
 			$this->{$field} = $value;
 		}
-		if ( 'timezone_name' === $name && ! empty( $value ) ) {
+		if ( 'timezone_name' === $name ) {
 			$this->_start->set_timezone( $value );
 			$this->_end  ->set_timezone( $value );
 		}
@@ -127,6 +146,11 @@ class Ai1ec_Event_Entity extends Ai1ec_Base {
 	private $_instance_id;
 
 	/**
+	 * @var string Name of timezone to use for event times.
+	 */
+	private $_timezone_name;
+
+	/**
 	 * @var Ai1ec_Date_Time Start date-time specifier
 	 */
 	private $_start;
@@ -135,11 +159,6 @@ class Ai1ec_Event_Entity extends Ai1ec_Base {
 	 * @var Ai1ec_Date_Time End date-time specifier
 	 */
 	private $_end;
-
-	/**
-	 * @var string Name of timezone to use for event times.
-	 */
-	private $_timezone_name;
 
 	/**
 	 * @var bool Whether this copy of the event was broken up for rendering and

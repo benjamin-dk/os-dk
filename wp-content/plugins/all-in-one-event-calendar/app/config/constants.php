@@ -50,20 +50,20 @@ function ai1ec_initiate_constants( $ai1ec_base_dir, $ai1ec_base_url ) {
 	// = Plugin Version =
 	// ==================
 	if ( ! defined( 'AI1EC_VERSION' ) ) {
-		define( 'AI1EC_VERSION', '2.0.5' );
+		define( 'AI1EC_VERSION', '2.0.13' );
 	}
 
 	// ================
 	// = RSS FEED URL =
 	// ================
 	if ( ! defined( 'AI1EC_RSS_FEED' ) ) {
-		define( 'AI1EC_RSS_FEED',           'http://time.ly/feed/' );
+		define( 'AI1EC_RSS_FEED',           'http://time.ly/blog/feed/' );
 	}
 
 	// =================
 	// = Language Path =
 	// =================
-	if ( ! defined( 'AI1EC_LANGUAGE_PATHh' ) ) {
+	if ( ! defined( 'AI1EC_LANGUAGE_PATH' ) ) {
 		define(
 			'AI1EC_LANGUAGE_PATH',
 			AI1EC_PLUGIN_NAME . DIRECTORY_SEPARATOR . 'language' . DIRECTORY_SEPARATOR
@@ -98,7 +98,6 @@ function ai1ec_initiate_constants( $ai1ec_base_dir, $ai1ec_base_url ) {
 	if ( ! defined( 'AI1EC_URL' ) ) {
 		define( 'AI1EC_URL', $ai1ec_base_url );
 	}
-
 	// ===============
 	// = VENDOR PATH =
 	// ===============
@@ -306,7 +305,7 @@ function ai1ec_initiate_constants( $ai1ec_base_dir, $ai1ec_base_url ) {
 		define(
 			'AI1EC_EXPORT_URL',
 			$webcal_url . '&controller=ai1ec_exporter_controller' .
-				'&action=export_events&cb=' . rand()
+				'&action=export_events'
 		);
 		unset( $webcal_url );
 	}
@@ -449,6 +448,13 @@ function ai1ec_initiate_constants( $ai1ec_base_dir, $ai1ec_base_url ) {
 	// every second refresh needs to take fresh copy of everything.
 	if ( ! defined( 'AI1EC_CACHE' ) ) {
 		define( 'AI1EC_CACHE', true );
+	}
+
+	// A value identifying that cache is not available.
+	// Used in place of actual path for cache to use.
+	// Named constant allows reuse of a single typed variable.
+	if ( ! defined( 'AI1EC_CACHE_UNAVAILABLE' ) ) {
+		define( 'AI1EC_CACHE_UNAVAILABLE', 'AI1EC_CACHE_UNAVAILABLE' );
 	}
 
 }

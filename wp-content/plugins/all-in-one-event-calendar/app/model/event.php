@@ -46,11 +46,12 @@ class Ai1ec_Event extends Ai1ec_Base {
 	 * Wrapper to get property value.
 	 *
 	 * @param string $property Name of property to get.
+	 * @param mixed  $default  Default value to return.
 	 *
 	 * @return mixed Actual property.
 	 */
-	public function get( $property ) {
-		return $this->_entity->get( $property );
+	public function get( $property, $default = null ) {
+		return $this->_entity->get( $property, $default );
 	}
 
 	/**
@@ -60,11 +61,10 @@ class Ai1ec_Event extends Ai1ec_Base {
 	 *
 	 * @return string
 	 */
-	public function get_runtime( $property ) {
-
+	public function get_runtime( $property, $default = '' ) {
 		return isset( $this->_runtime_props[$property] ) ?
 			$this->_runtime_props[$property] :
-			'';
+			$default;
 	}
 
 	/**
@@ -97,6 +97,38 @@ class Ai1ec_Event extends Ai1ec_Base {
 		}
 		$this->_entity->set( $property, $value );
 		return $this;
+	}
+
+	/**
+	 * Set the event is all day, during the specified number of days
+	 *
+	 * @param number $length
+	 */
+	public function set_all_day( $length = 1 ) {
+		// set allday as true
+		$this->set( 'allday', true );
+		$start = $this->get( 'start' );
+		// reset time component
+		$start->set_time( 0, 0, 0 );
+		$end   = $this->_registry->get( 'date.time', $start );
+		// set the correct length
+		$end->adjust_day( $length );
+		$this->set( 'end', $end );
+	}
+
+	/**
+	 * Set the event as if it has no end time
+	 */
+	public function set_no_end_time() {
+		$this->set( 'instant_event', true );
+		$start = $this->get( 'start' );
+		$end   = $this->_registry->get( 'date.time', $start );
+		$end->set_time(
+			$start->format( 'H' ),
+			$start->format( 'i' ) + 30,
+			$start->format( 's' )
+		);
+		$this->set( 'end', $end );
 	}
 
 	/**
@@ -192,7 +224,7 @@ class Ai1ec_Event extends Ai1ec_Base {
 						   "  IF( aei.start IS NOT NULL, aei.end,   e.end )   as end ";
 
 			$instance = (int)$instance;
-			$this->instance_id = $instance;
+			$this->set( 'instance_id', $instance );
 			$left_join = 	'LEFT JOIN ' . $dbi->get_table_name( 'ai1ec_event_instances' ) .
 				' aei ON aei.id = ' . $instance . ' AND e.post_id = aei.post_id ';
 		} else {
@@ -393,18 +425,25 @@ class Ai1ec_Event extends Ai1ec_Base {
 	}
 
 	/**
-	 * Return UID to use according to ICS rules.
+	 * Get UID to be used for current event.
 	 *
-	 * @return string UID event identifier.
+	 * The generated format is cached in static variable within this function
+	 * to re-use when generating UIDs for different entries.
 	 *
-	 * @staticvar string $_blog_url Base URL of blog, used as part of UID.
+	 * @return string Generated UID.
+	 *
+	 * @staticvar string $format Cached format.
 	 */
 	public function get_uid() {
-		static $_blog_url = NULL;
-		if ( NULL === $_blog_url ) {
-			$_blog_url = bloginfo( 'url' );
+		static $format = null;
+		if ( null === $format ) {
+			$site_url = parse_url( get_site_url() );
+			$format   = 'ai1ec-%d@' . $site_url['host'];
+			if ( isset( $site_url['path'] ) ) {
+				$format .= $site_url['path'];
+			}
 		}
-		return $this->get( 'post_id' ) . '@' . $_blog_url;
+		return sprintf( $format, $this->get( 'post_id' ) );
 	}
 
 	/**
@@ -459,10 +498,11 @@ class Ai1ec_Event extends Ai1ec_Base {
 	 * @return number
 	 */
 	public function get_duration() {
-		static $duration;
+		$duration = $this->get_runtime( 'duration', null );
 		if ( null === $duration ) {
 			$duration = $this->get( 'end' )->format() -
 				$this->get( 'start' )->format();
+			$this->set_runtime( 'duration', $duration );
 		}
 		return $duration;
 	}
@@ -487,6 +527,9 @@ class Ai1ec_Event extends Ai1ec_Base {
 		$table_name = $dbi->get_table_name( 'ai1ec_events' );
 		$post_id    = $columns['post_id'];
 
+		if ( $this->get( 'end' )->format() <= 0 ) {
+			$this->set_no_end_time();
+		}
 		if ( $post_id ) {
 
 			$success = false;
@@ -668,6 +711,15 @@ class Ai1ec_Event extends Ai1ec_Base {
 			$value = $this->{ '_handle_property_destruct_' . $field }( $value );
 		}
 		return $value;
+	}
+
+	/**
+	 * Allow properties to be modified after cloning.
+	 *
+	 * @return void
+	 */
+	public function __clone() {
+		$this->_entity = clone $this->_entity;
 	}
 
 	/**

@@ -99,7 +99,7 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 
 	/**
 	 * Renders the Timely blog meta box
-	 * 
+	 *
 	 * @param mixed $object
 	 * @param mixed $box
 	 */
@@ -110,12 +110,12 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 		$feed      = fetch_feed( AI1EC_RSS_FEED );
 		$newsItems = is_wp_error( $feed ) ? array() : $feed->get_items( 0, 5 );
 		$loader    = $this->_registry->get( 'theme.loader' );
-		$file      = $loader->get_file( 
+		$file      = $loader->get_file(
 			'box_support.php',
 			array(
 				'news' => $newsItems,
-			), 
-			true 
+			),
+			true
 		);
 		$file->render();
 	}
@@ -150,6 +150,7 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 					'advanced' => Ai1ec_I18n::__( 'Advanced Settings' ),
 					'email'    => Ai1ec_I18n::__( 'Email Templates' ),
 					'apis'     => Ai1ec_I18n::__( 'External Services' ),
+					'cache'    => Ai1ec_I18n::__( 'Cache Report' ),
 				)
 			),
 		);
@@ -172,7 +173,14 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 					'class'     => 'ai1ec-btn ai1ec-btn-primary ai1ec-btn-lg',
 				),
 			),
-
+			'pre_tabs_markup'   => sprintf(
+				'<div class="ai1ec-gzip-causes-js-failure">' .
+				Ai1ec_I18n::__(
+					'If the form below is not working please follow <a href="%s">this link</a>.'
+				) .
+				'</div>',
+				add_query_arg( 'ai1ec_disable_gzip_compression', '1' )
+			)
 		);
 
 		$file = $loader->get_file( 'setting/bootstrap_tabs.twig', $args, true );
@@ -190,6 +198,7 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 	 * @return array
 	 */
 	protected function _get_tabs_to_show( array $plugin_settings, array $tabs ) {
+		$index = 0;
 		foreach ( $plugin_settings as $id => $setting ) {
 			// if the setting is shown
 			if ( isset ( $setting['renderer'] ) ) {
@@ -218,8 +227,16 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 					);
 				}
 				// render the settings
+				$weight = 10;
+				if ( isset( $setting['renderer']['weight'] ) ) {
+					$weight = (int)$setting['renderer']['weight'];
+				}
+				// NOTICE: do NOT change order of two first
+				// elements {weight,index}, otherwise sorting will fail.
 				$tabs[$tab_to_use]['elements'][] = array(
-					'html' => $renderer->render()
+					'weight' => $weight,
+					'index'  => ++$index,
+					'html'   => $renderer->render(),
 				);
 				// if the settings has an item tab, set the item as active.
 				if ( isset( $setting['renderer']['item'] ) ) {
@@ -232,6 +249,10 @@ class Ai1ec_View_Admin_Settings extends Ai1ec_View_Admin_Abstract {
 		$tabs_to_display = array();
 		// now let's see what tabs to display.
 		foreach ( $tabs as $name => $tab ) {
+			// sort by weights
+			if ( isset( $tab['elements'] ) ) {
+				asort( $tab['elements'] );
+			}
 			// if a tab has more than one item.
 			if ( isset( $tab['items'] ) ) {
 				// if no item is active, nothing is shown

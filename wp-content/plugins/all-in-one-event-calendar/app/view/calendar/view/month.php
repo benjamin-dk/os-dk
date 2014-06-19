@@ -76,8 +76,9 @@ class Ai1ec_Calendar_View_Month  extends Ai1ec_Calendar_View_Abstract {
 			'data_type'                => $args['data_type'],
 			'data_type_events'         => '',
 			'is_ticket_button_enabled' => $is_ticket_button_enabled,
+			'text_venue_separator'     => __( '@ %s', AI1EC_PLUGIN_NAME ),
 		);
-		if( $settings->get( 'ajaxify_events_in_web_widget' ) ) {
+		if ( $settings->get( 'ajaxify_events_in_web_widget' ) ) {
 			$view_args['data_type_events'] = $args['data_type'];
 		}
 
@@ -243,8 +244,12 @@ class Ai1ec_Calendar_View_Month  extends Ai1ec_Calendar_View_Abstract {
 	/* (non-PHPdoc)
 	 * @see Ai1ec_Calendar_View_Abstract::_add_view_specific_runtime_properties()
 	 */
-	protected function _add_view_specific_runtime_properties( Ai1ec_Event $event ) {
-		$end_day = $event->get( 'end' )->adjust( -1, 'second' )->format_i18n( 'd' );
+	protected function _add_view_specific_runtime_properties(
+		Ai1ec_Event $event
+	) {
+		$end_day = $this->_registry->get( 'date.time', $event->get( 'end' ) )
+			->adjust( -1, 'second' )
+			->format_i18n( 'd' );
 		$event->set_runtime( 'multiday_end_day', $end_day );
 	}
 
@@ -351,7 +356,10 @@ class Ai1ec_Calendar_View_Month  extends Ai1ec_Calendar_View_Abstract {
 	 *
 	 * @return array            array of arrays as per function's description
 	 */
-	protected function get_events_for_month( Ai1ec_Date_Time $time, $filter = array() ) {
+	protected function get_events_for_month(
+		Ai1ec_Date_Time $time,
+		$filter = array()
+	) {
 		$last_day = $time->format( 't' );
 
 		$day_entry = array(
@@ -382,6 +390,7 @@ class Ai1ec_Calendar_View_Month  extends Ai1ec_Calendar_View_Abstract {
 		);
 		$start_time = $start_time->format();
 		$end_time   = $end_time->format();
+		$this->_update_meta( $month_events );
 
 		foreach ( $month_events as $event ) {
 			$event_start = $event->get( 'start' )->format();
@@ -438,4 +447,5 @@ class Ai1ec_Calendar_View_Month  extends Ai1ec_Calendar_View_Abstract {
 			$filter
 		);
 	}
+
 }
