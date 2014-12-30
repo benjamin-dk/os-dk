@@ -1,0 +1,429 @@
+<!doctype html>  
+
+<!--[if IEMobile 7 ]> <html lang="da-DK"class="no-js iem7"> <![endif]-->
+<!--[if lt IE 7 ]> <html lang="da-DK" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="da-DK" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="da-DK" class="no-js ie8"> <![endif]-->
+<!--[if (gte IE 9)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html lang="da-DK" class="no-js"><!--<![endif]-->
+	
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		
+		<title>Fri software &#8211; definition, baggrund og forklaring | opensource.dk</title>
+				
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				
+		<!-- media-queries.js (fallback) -->
+		<!--[if lt IE 9]>
+			<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>			
+		<![endif]-->
+
+		<!-- html5.js -->
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		
+  		<link rel="pingback" href="http://os.benway.dk/xmlrpc.php">
+
+		<!-- wordpress head functions -->
+		<link rel='stylesheet' id='ai1ec_style-css'  href='http://os.benway.dk/?ai1ec_render_css=1411464507&#038;ver=2.0.13' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-css'  href='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/css/bootstrap.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-responsive-css'  href='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/css/responsive.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-bootstrap-css'  href='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master-child/style.css?ver=1.0' type='text/css' media='all' />
+<script type='text/javascript' src='http://os.benway.dk/wp-includes/js/jquery/jquery.js?ver=1.11.1'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/js/bootstrap.min.js?ver=1.2'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/js/scripts.js?ver=1.2'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/js/modernizr.full.min.js?ver=1.2'></script>
+<link rel='canonical' href='http://os.benway.dk/2013/10/fri-software-definition-baggrund-og-forklaring/' />
+<link rel='shortlink' href='http://os.benway.dk/?p=48' />
+
+
+<!-- Plugin: Åbn eksterne links i et nyt vindue. Plugin af Kristian Risager Larsen, http://kristianrisagerlarsen.dk . Hent det fra http://wordpress.org/extend/plugins/open-external-links-in-a-new-window/ -->
+<script type="text/javascript">//<![CDATA[
+	function external_links_in_new_windows_loop() {
+		if (!document.links) {
+			document.links = document.getElementsByTagName('a');
+		}
+		var change_link = false;
+		var force = '';
+		var ignore = '';
+
+		for (var t=0; t<document.links.length; t++) {
+			var all_links = document.links[t];
+			change_link = false;
+			
+			if(document.links[t].hasAttribute('onClick') == false) {
+				// forced if the address starts with http (or also https), but does not link to the current domain
+				if(all_links.href.search(/^http/) != -1 && all_links.href.search('os.benway.dk') == -1) {
+					// alert('Changeda '+all_links.href);
+					change_link = true;
+				}
+					
+				if(force != '' && all_links.href.search(force) != -1) {
+					// forced
+					// alert('force '+all_links.href);
+					change_link = true;
+				}
+				
+				if(ignore != '' && all_links.href.search(ignore) != -1) {
+					// alert('ignore '+all_links.href);
+					// ignored
+					change_link = false;
+				}
+
+				if(change_link == true) {
+					// alert('Changed '+all_links.href);
+					document.links[t].setAttribute('onClick', 'javascript:window.open(\''+all_links.href+'\'); return false;');
+					document.links[t].removeAttribute('target');
+				}
+			}
+		}
+	}
+	
+	// Load
+	function external_links_in_new_windows_load(func)
+	{	
+		var oldonload = window.onload;
+		if (typeof window.onload != 'function'){
+			window.onload = func;
+		} else {
+			window.onload = function(){
+				oldonload();
+				func();
+			}
+		}
+	}
+
+	external_links_in_new_windows_load(external_links_in_new_windows_loop);
+	//]]></script>
+
+		<!-- end of wordpress head -->
+
+		<!-- theme options from options panel -->
+		<style>
+        h1, h2, h3, h4, h5, h6{ 
+          font-family: arial; 
+          font-weight: normal; 
+          color: ; 
+        }
+        body{ 
+          font-family: arial; 
+          font-weight: normal; 
+          color: ; 
+        }
+        #main article {
+          border-bottom: none;
+        }
+        </style><link rel="stylesheet" href="http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/admin/themes/united.css">
+		<!-- typeahead plugin - if top nav search bar enabled -->
+						
+	</head>
+	
+	<body class="single single-post postid-48 single-format-standard">
+				
+		<header role="banner">
+		
+			<div id="inner-header" class="clearfix">
+				
+				<div class="navbar navbar-fixed-top">
+					<div class="navbar-inner">
+						<div class="container-fluid nav-container">
+							<nav role="navigation">
+								<a class="brand" id="logo" title="Fri software og open source portal" href="http://os.benway.dk">
+									opensource.dk</a>
+								
+								<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+							        <span class="icon-bar"></span>
+							        <span class="icon-bar"></span>
+							        <span class="icon-bar"></span>
+								</a>
+								
+								<div class="nav-collapse">
+									<ul id="menu-main-menu" class="nav"><li id="menu-item-125" class="menu-item menu-item-type-post_type menu-item-object-post"><a title="Definition af fri software og hvorfor det er vigtigt." href="http://os.benway.dk/2013/10/fri-software-definition/">Fri software &#8211; hvorfor?</a></li><li id="menu-item-55" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://os.benway.dk/events/">Events</a></li><li id="menu-item-56" class="menu-item menu-item-type-post_type menu-item-object-post"><a title="Lær mere om open source og fri software licenserne her." href="http://os.benway.dk/2013/09/open-source-licenser-kort-fortalt/">Licenser for dummies</a></li><li id="menu-item-362" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://os.benway.dk/foreninger-organisationer/">Foreninger og organisationer</a></li><li id="menu-item-369" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://os.benway.dk/om-os/">Om os</a></li></ul>								</div>
+								
+							</nav>
+							
+														
+						</div> <!-- end .nav-container -->
+					</div> <!-- end .navbar-inner -->
+				</div> <!-- end .navbar -->
+			
+			</div> <!-- end #inner-header -->
+		
+		</header> <!-- end header -->
+		
+		<div class="container-fluid">
+			
+			<div id="content" class="clearfix row-fluid">
+			
+				<div id="main" class="span8 clearfix" role="main">
+
+										
+					<article id="post-48" class="post-48 post type-post status-publish format-standard has-post-thumbnail hentry category-filosofi-og-baggrund clearfix" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+						
+						<header>
+						
+							<img src="http://os.benway.dk/wp-content/uploads/2013/10/cycle_small1-638x300.png" class="attachment-wpbs-featured wp-post-image" alt="cycle_small" />							
+							<div class="page-header"><h1 class="single-title" itemprop="headline">Fri software &#8211; definition, baggrund og forklaring</h1></div>
+							
+							<p class="meta">Posted <time datetime="2013-10-16" pubdate>16/10/2013</time> by <a href="http://os.benway.dk/author/agger/" title="Indl&#230;g skrevet af agger" rel="author">agger</a> <span class="amp">&</span> filed under <a href="http://os.benway.dk/category/filosofi-og-baggrund/" rel="category tag">Filosofi og baggrund</a>.</p>
+						
+						</header> <!-- end article header -->
+					
+						<section class="post_content clearfix" itemprop="articleBody">
+							<div id="fri-software-for-microsoft-windows">
+<div id="hvorfor-bruge-fri-software">
+<div id="nar-software-ikke-er-fri">
+<h2>Når software ikke er fri</h2>
+<p class="lead">Når du køber en cykel, kan du tillade dig at gå ud fra, at du ejer den. Du kan gøre med den, præcis som du vil. Det står dig blandt andet frit for at</p>
+<ul>
+<li>lappe den</li>
+<li>reparere den</li>
+<li>skille den ad og samle den igen</li>
+<li>købe nye dele til den og forbedre den</li>
+<li>låne den ud og sælge den igen.</li>
+</ul>
+<p>Det er der ikke noget overraskende i &#8211; det er i høj grad det, der ligger i forestillingen om, at du ejer cyklen.</p>
+<p>Hvis du køber et computerprogram, forholder det sig oftest helt anderledes. For den mest udbredte type programmer &#8211; hvad jeg i det følgende vil kalde <em>proprietær</em> software &#8211; gælder det, at du ikke har <em>nogen</em> af disse rettigheder. Gode eksempler på proprietær software er Microsoft Windows, Microsoft Office, Adobe Photoshop, Norton Antivirus og mange, mange flere.</p>
+<p>For disse programmers vedkommende gælder det, at du <em>ikke</em> har ret til at reparere programmet, skille det ad og samle det igen eller overhovedet gøre nogle af de ting, du som en selvfølge forventer at kunne gøre ved din cykel. Du har ikke adgang til programmets kildekode, og du kan derfor ikke bare sætte dig ned og læse programmet for at finde ud af, hvad det gør. Du kan selvfølgelig sætte dig ned og forsøge at tyde den binære fil, som ligger på din computer og &#8220;er&#8221; selve programmet. En anden teknik til at finde ud af, hvad et computerprogram gør, er at overvåge og analysere al programmets kommunikation med omverdenen og herudfra prøve at regne sig frem til, hvad der må foregå inden i.</p>
+<p>Hvis du nærlæser programmets licensbetingelser (det er den skærm fuld af underlige regler og bestemmelser, som du skyndte dig at klikke &#8220;Ja&#8221; eller &#8220;Acceptér&#8221; til for at komme videre med installationen) vil du dog konstatere, at producenten opfatter begge disse fremgangsmåder som ulovlige. At forsøge at regne sig frem til, hvad et proprietært program gør, hedder &#8220;reverse engineering&#8221; og anses af producenterne for at være strengt forbudt.</p>
+<p>Det betyder også, at hvis du finder en fejl i dit program, kan du ikke bare ringe til den nærmeste cykelmekaniker &#8211; undskyld, programmør &#8211; og bede ham reparere det. Du kan ikke og må ikke selv rette fejlen. Og hvis du alligevel på en eller anden måde skulle være kommet til at rette fejlen, må du i hvert fald slet ikke give din rettelse videre til venner og familie. Dette ville være piratkopiering af en uautoriseret ændring, og producenten ville være i sin gode ret til at sagsøge dig for mange tusinde kroner. Dette gælder også, selv om der er tale om en alvorlig sikkerhedsbrist, som sætter dine bekendtes bankoplysninger og privatliv i fare. Hvis du eller andre vil have fejlen rettet, må I pænt vente på, at producenten selv får tid til at gøre det. I heldigste fald kommer rettelsen i en opdatering om nogle måneders tid, men ofte kan du først regne med at få rettelsen i næste udgave af programmet, som det selvfølgelig vil koste penge at få.</p>
+</div>
+<div id="problemer-ved-ikke-fri-software">
+<h2>Problemer ved ikke-fri software</h2>
+<div id="standarder-kontra-hemmeligholdelse">
+<h3>Standarder kontra hemmeligholdelse</h3>
+<p>Denne forretningsmodel giver mange praktiske problemer for brugerne &#8211; og det gælder både den enkelte bruger derhjemme og store organisationer som Folketinget og EU-parlamentet.</p>
+<p>For det første har udbredelsen af proprietær software haft som konsekvens, at der ikke er nogen ordentligt udbredte <em>standarder</em> for udbredelse af information mellem brugere.</p>
+<p>En standard vil i den forstand sige en vedtagen måde at gemme og indlæse oplysningerne på. Inden for industri og detailhandel er der en omfattende tradition for og lovgivning om standardisering, der blandt andet betyder, at skruer og møtrikker har nogle bestemte, vedtagne størrelser og altså let kan erstattes med andre, som man kan købe i ethvert byggemarked. Standardiseringen betyder også, at alle stikkontakter i danske hjem har samme størrelse og form &#8211; hver elektriker eller hvert elselskab har ikke deres eget. Når du køber en elektrisk pære til din lampe hjemme i stuen, passer den også umiddelbart i, fordi der findes en standard for gevindstørrelsen i fatningen.</p>
+<p>På Internettet er vi vant til at kunne søge oplysninger på hjemmesider for alle større virksomheder, uddannelsesinstitutioner og offentlige myndigheder. Dette kan lade sig gøre, fordi der findes nogle åbne standarder for udbredelse af dokumenter over internettet, som alle hjemmesideforfattere og browserproducenter er enige om at overholde. Standarden for kommunikation af hjemmesider mellem bruger og forfatter hedder HTTP, og standarden for selve præsentationen hedder HTML. At HTML og HTTP er <em>åbne</em> standarder betyder, at der findes en standardiseringskomité, som på et tidspunkt har udgivet en specifikation, som er frit tilgængelige for alle producenter af browser- og webserver-programmer. Producenterne ved, at de er nødt til at læse og overholde denne standard, for ellers vil deres brugere ikke være i stand til at få adgang til den information, de forventer.</p>
+<p>Inden for informationsteknologi er standardiseringen af Internettet desværre noget af et særsyn. Mens en effektiv standardisering reelt har været en forudsætning for vor tids avancerede industrielle produktion, har konkurrencen mellem forskellige producenter af proprietær software reelt forhindret en tilsvarende standardisering af dokument- og dataformater.</p>
+<p>På dokument-området skete der i 1980erne og 1990erne tværtimod det, at en række producenter skabte hver deres eget, proprietære tekstbehandlingsprogram. Hvert af disse tekstbehandlingsprogrammer definerede deres helt eget dokumentformat, som det gjorde til standard blandt sine egne brugere. Eftersom det ikke var i producentens interesse, at konkurrerende teksbehandlingsprogrammer kunne læse og skrive brugernes dokumenter, blev specifikationerne til disse formater betragtet som vigtige forretningshemmeligheder. Dokumentformatet blev benyttet som en effektiv løftestang til at holde konkurrenterne ude. Virksomheder, der ønskede at handle indbyrdes og derfor var nødt til at sende hinanden dokumenter, var i virkeligheden tvunget til at anskaffe sig det samme tekstbehandlingssystem. I løbet af 1990erne forsvandt de fleste af de konkurrerende tekstbehandlingssystemer, og feltet snævredes ind til en kamp mellem de to mest avancerede, nemlig WordPerfect og Microsoft Word. Her endte Microsoft Word med at gå af med sejren, blandt andet fordi Microsoft havde held til at udnytte deres monopol på styresystemet Windows til at markedsføre deres Office-programmer.</p>
+<p>Microsofts monopol på tekstbehandlingsområdet har i dag reelt ført til, at &#8220;Word-format&#8221; er den reelle standard for udveksling af tekst-dokumenter mellem virksomheder og private. Det er dog en dårlig standard, som alle, der har prøvet at få tilsendt et dokument i en nyere eller ældre version af programmet, end deres egen computers udgave lige kan kapere, kan bevidne. På mere specialiserede områder er dokumenter blevet opbevaret i alle mulige besynderlige formater, som er udviklet til lejligheden af den producent, der tilfældigvis var billigst og derfor vandt kontrakten på området. Spørg bare Danmarks arkæologiske museer, der har brugt kolossale kræfter på at samordne de forskellige mussers data efter anerkendte åbne standarder.</p>
+<p>Efterhånden, som der kommer nye versioner af sådanne dokumenthåndteringsprogrammer, er der altid gamle dokumenter, der ikke mere kan læses. Vigtige data går hvert år tabt på grund af den manglende standardisering på området. Mangelen på åbne standarder inden for IT koster hvert år samfundet mange hundrede millioner kroner, der kunne bruges til andre formål. Og denne mangel på åbne standarder er en direkte konsekvens af den proprietære model for software-udvikling: Hvis alle brugere som udgangspunkt havde haft ret til at undersøge og ændre alle tekstbehandlingsprogrammer, ville det aldrig have været muligt at hemmeligholde formaterne.</p>
+</div>
+<div id="flere-problemer">
+<h3>Flere problemer</h3>
+<p>Helt generelt er problemet med ikke-fri eller proprietær software, at programmerne er &#8220;sorte kasser&#8221;, som producenten får lov til (helt bogstaveligt) at installere på din computer. Du ved ikke, hvad der sker inden i dem. Du kan have en formodning om, at programmet er skrevet, så det efter programmørens bedste evne forsøger at gøre det, som du forventer af det, men du kan ikke vide det. Dette kan alt andet lige være en smule problematisk, når nu programmerne faktisk bruger <em>din</em> computer til at handle på <em>dine</em> vegne &#8211; uden, at du helt nøjagtigt ved, hvad de gør.</p>
+<p>Hvis producenten har helt og aldeles rent mel i posen, kan det vel siges at være fint nok. Vist kunne det være rart, om det var muligt som bruger selv at undersøge programmet og finde og rette nogle af de fejl, som et computerprogram altid vil indeholde, men hvis du kan stole på, at producenten altid efter bedste evne og med stor kompetence vil lave programmerne, så de kan tjene dig så godt som muligt, er det vel ikke værre, end at de fleste mennesker med bil gerne stoler blindt på deres mekaniker. Og dog: Hvis du er bange for, om din mekaniker snyder dig eller har overset en vigtig fejl, har du altid den mulighed at få en anden mekaniker til at se på bilen. Når vi taler om proprietære computerprogrammer, eksisterer den mulighed ikke. At stole på producenten er ikke bare sund fornuft, det er den eneste mulighed. Mange af os mener, at tillid til store, kommercielle organisationer som Microsoft, Apple og IBM er godt, men kontrol er bedre. Så hvorfor <em>skal</em> det absolut vende den vej? Hvorfor er vi nødsaget til at stole på deres gode hensigter uden mulighed for at kontrollere dem?</p>
+<p>Det er endda værre end som så. Med jævne mellem bliver en softwareproducent grebet i ikke at have så lige så rent mel i posen, som de foretrækker at give indtryk af. Et godt eksempel er de løbende opdateringer til Windows, som Microsoft angiveligt af sikkerhedsgrunde opfordrer folk til at køre helt automatisk og altså uden kontrol.</p>
+<p>Præmissen for Microsofts opfordring til at lade Windows-opdateringerne køre helt automatisk er et løfte om, at enhver opdatering altid kun vil være til fordel for brugeren. Microsoft lover med andre ord, at de kun sender ændringer af Windows og Windows-programmer ud med de automatiske opdateringer, hvis de er til gavn for brugerne. Eksempler på opdateringer, der er til gavn for brugere af Windows er fejlrettelser og sikkerhedsopdateringer.</p>
+<p>I 2007 udsendte Microsoft imidlertid deres program &#8220;Windows Genuine Advantage&#8221; (WGA). WGA er et program, som brugeren ikke umiddelbart har nogen gavn af. Det, som det gør, er nemlig at udføre en kompliceret analyse af brugerens Windows-installation, herunder hardware og registreringsnøgle. Formålet med denne analyse var at finde ud af, om brugerens udgave af Windows XP var en piratkopi. Hvis WGA fandt frem til, at der vitterlig var tale om en piratkopi, blev Windows XP &#8220;låst&#8221;, og brugeren havde kun adgang til en meget begrænset del af computerens funktionalitet.</p>
+<p>Problemet med udrulningen af WGA er selvfølgelig, at Microsoft har lovet og for så vidt stadig lover, at de kun vil udsende nye programmer gennem de automatiske opdateringer, hvis de repræsenterer en klar forbedring for brugeren. Et program, der checker, om brugeren sidder med en piratkopi, gør ikke nogen gavn <em>for brugeren</em>. Et sådant program gør, hvis det ellers kører fejlfrit og de data, det sender til Microsoft, ikke bliver misbrugt, i bedste fald ingen skade for den lovlydige bruger; nemlig hvis det fungerer fejlfrit og kun nedgraderer vitterlige piratkopier til den &#8220;begrænsede&#8221; funktionalitet. Hvis det derimod skulle indeholde en fejl, der får det til at opfatte lovligt indkøbte Windows-installationer som piratkopier, kan det påføre brugerne stor skade i form af spildtid og tabt arbejdsfortjeneste, når de pludselig ser sig berøvet adgangen til deres computer.</p>
+<p>Dette er lige præcis, hvad der skete den 25. august 2007. Den dag gik Microsofts centrale WGA-servere ned, og en fejl i selve programmet fik det til at reagere ved at opfatte det lokale eksemplar af Windows som en piratkopi. Titusinder af mennesker var praktisk talt uden adgang til deres computer i op til en dag, og den økonomiske skadevirkning af virksomhedernes tabte arbejdstimer skal opgøres i millioner af dollars. Microsoft beklagede dybt, men har selvfølgelig ikke erstattet så meget som en enkelt af de ekstra arbejdstimer, de hermed har påført deres kunder. Heller ikke, selv om installationen af Windows Genuine Advantage gennem systemet for automatiske opdateringer faktisk var et klokkeklart brud på de løfter, de selv bruger for at få folk til at tilmelde sig det.</p>
+<p>Et andet eksempel angår Microsofts vigtigste konkurrent, nemlig computer-, telefon- og-meget-andet-giganten <em>Apple</em>. Apple har formået at køre sig selv i stilling som det smarteste af det smarte, og både deres computere, deres MP3-afspillere og deres mobiltelefoner (den såkaldte <em>iPhone</em>) har fået et velfortjent ry for brugervenlighed og velfungerende, gennemarbejdede applikationer. Apples produkter har derfor en høj stjerne blandt kreative og &#8220;sofistikerede&#8221; computerbrugere, og deres høje pris og meget polerede udseende har givet dem et ry for luksuriøs kvalitet og teknisk perfektion.</p>
+<p>Apple har til gengæld ikke ry for at tage store hensyn til brugernes frihed eller deres ønske om selv at kontrollere og manipulere med deres produkter. En iPhone eller en iPad leveres med en række omfattende begrænsninger af hvilke programmer, det er muligt at installere for den. Apples tidligere topchef Steve Jobs har i den forbindelse omtalt iPhone som en &#8220;curated platform&#8221;, det vil sige en type system, hvor det kun er muligt at køre programmer, som producenten har sagt god for, og hvor producenten derfor kommer til at fungere som kurator eller garant for kvaliteten af de programmer, det er muligt at installere. I de tilfælde, hvor kriterierne for en sådan udvælgelse ikke er af teknisk art, kan &#8220;kuratorens&#8221; indsats nærme sig censur. Den danske avis Ekstra Bladet kunne således ikke få godkendt en applikation, der kan vise de afklædte kvinder, avisen hver dag bringer på side 9. I USA er det til gengæld muligt at downloade applikationer til iPhones, der viser, hvilke huse i nabolaget, der bebos af folk med en dom for pædofili (hvis man nu keder sig og gerne vil arrangere en rask lille lynchning) eller som kan bruges til at angive naboen for mistanke om at tage stoffer. Denne censur er måske ikke politisk motiveret, men Apples intense trang til ikke at &#8220;vække anstød&#8221; betyder, at firmaets censur af iPhone- og iPad-applikationer tager vidtgående hensyn til &#8220;konservativ&#8221; moralsk finfølelse, men ikke til folks &#8220;liberale&#8221; trang til at trække vejret og være sig selv.</p>
+<p>Apple indtager i det hele taget en meget kontrollerende holdning til sine produkter, og der kunne efterhånden skrives en hel bog om de svigt af kundernes tillid, firmaet har gjort sig skyldig i på den konto. Her vil jeg nøjes med at tage udgangspunkt i et enkelt eksempel, nemlig <em>ringetoner</em>.</p>
+<p>De fleste mobiltelefoner med en ordentlig højttaler har i vore dage også en musikafspiller indbygget, og med et memory card kan sådan en telefon træde i stedet for en MP3-afspiller. Mange mobiltelefonejere bruger deres telefon på den måde. Det er derfor ganske naturligt, at mange mennesker tager en af deres yndlingsmelodier, som alligevel ligger på telefonen, og bruger den som ringetone. Næsten alle mobiltelefoner med musikafspiller kan derfor tage en vilkårlig lydfil og bruge den som ringetone.</p>
+<p>Dette kan dog ikke lade sig gøre på en iPhone. Apple synes nemlig, at ringetoner til iPhone kun skal være tilgængelige gennem firmaets online musikforretning <em>iTunes</em>, hvor det er muligt at købe en lang række lydfiler, der kan bruges som ringetoner. For mange ejere af en iPhone føles dette dog som en irriterende begrænsning. Det lille amerikanske firma <em>Ambrosia</em> udnyttede denne irritation ved at lave PC-programmet <em>iTones</em>, der gør det muligt at gøre vilkårlige MP3-filer til ringetone på en iPhone. Apple brød sig ikke om dette forsøg på at omgå deres monopol på ringetoner til iPhone. Den næste softwareopdatering fra Apple indeholdt derfor et program, der gik ind og fandt og <em>slettede</em> alle uautoriserede ringetoner.</p>
+<p>I 2010 kom det også frem, at Apple har indbygget et lille program i alle iPads og nyere iPhones, der bruger den indbyggede GPS til hver dag at sende brugerens geografiske position til Apple. Apple har selv forklaret selv, at denne indsamling af oplysninger om, hvor hver enkelt iPhone-ejer til hver en tid befinder sig, kun tjener kommercielle formål og ikke har til hensigt at krænke brugernes privatliv. Apple blev dog mødt af en storm af kritik i den anledning. Denne kritik kom ikke mindst fra nogle af firmaets egne kunder, der følte sig ubehageligt berørt over, hvad de opfattede som et forsøg på at udspionere deres færden.</p>
+<p>I alle tilfælde må det siges at være problematisk. Det er én ting, at Apple insisterer på at bestemme, hvilke programmer, folk har lov til at installere på deres iPhones og samtidig forbeholder sig retten til at deaktivere eller slette applikationer, hvis de senere trækker godkendelsen af dem tilbage. At installere programmer bag om ryggen på brugeren, der gør så kritiske ting som at slette brugerens private data og indberette vedkommendes opholdssted vidner i bedste fald om en meget lille respekt for brugernes privatliv og integritet. Man skulle tro, at de i det mindste kunne have spurgt, før de tog så forholdsvis drastiske skridt.</p>
+<p>Det problematiske ved soft- og hardwareproducenters insisteren på fortsat at kontrollere deres produkter blev ikke mindst understreget af balladen omkring Amazons <em>Kindle</em>. En Kindle er en ebogs-læser, der udmærker sig ved at kunne vise elektroniske bøger smukt formatteret og på en mat, papiragtig baggrund, der ikke giver det kraftige lysskær, som gør det besværligt at læse hele bøger fra en konventionel computerskærm. En Kindle er i den forstand en genial opfindelse, fordi den kombinerer fordelene ved den fysiske og den elektroniske bog. Ligesom en fysisk bog kan den tages med overalt, og der er ingen problemer med at læse fra skærmen udendørs, i hvert fald ikke så længe, der er strøm på batteriet. Samtidig vejer den enkelte bog ikke noget, så det er muligt at have et bibliotek på mange tusinde værker med sig i tasken, overalt hvor man går. De betingelser, som Amazon pålægger brugeren ved køb af en Kindle er dog mindre geniale, i hvert fald for brugeren.</p>
+<p>En Kindle drives grundlæggende af noget proprietært software, som Amazon selv har skrevet og bygget ovenpå et GNU/Linux-system. For at få det til at fungere har Amazon måttet foretage nogle ændringer i Linux-kernen, og disse ændringer har de ifølge betingelserne i GPL været nødt til at offentliggøre på deres hjemmeside. Dette har de gjort under stor fanfare, idet de har benyttet lejligheden til at understrege, hvor &#8220;åbne&#8221; og &#8220;open source&#8221;-agtige, de er. Det er der dog næppe mange i fri software-bevægelsen, der har ladet sig imponere af. Hvis Amazon sælger produkter baseret på en ændret version af Linux-kernen, <em>skal</em> de levere kildekoden med, og at foretage denne leverance ved at offentliggøre koden på en hjemmeside er ganske enkelt standard for, hvordan sådan noget gøres. Kindlens styreprogrammer er i øvrigt ganske lukkede og proprietære. Det må de nødvendigvis være, eftersom en vigtig del af Amazons forretningsmodel for Kindlen er baseret på, at man ikke kan låne sine bøger ud til andre, eller at man i det mindste kun kan gøre det på en meget kontrolleret måde. De bøger, du kan købe til en Amazon Kindle, er med andre ord omfattet af en kopibeskyttelse, der pålægger dig endnu mere vidtgående begrænsninger for, hvad du kan gøre med de bøger, du har &#8220;købt&#8221;, end der er på ikke-elektroniske bøger, som du har købt hos en gammeldags boghandler. Amazon forbeholder sig endda retten til til hver en tid at afskære deres brugere fra de tjenester, de hidtil har udbudt.</p>
+<p>Dette fik en række af Amazons kunder at føle den 17. juli 2009. Amazon var netop begyndt at sælge en elektronisk udgave af George Orwells bøger &#8220;1984&#8221; og &#8220;Kammerat Napoleon&#8221;, da det viste sig, at rettighederne alligevel ikke var forhandlet på plads med Orwells arvinger. Problemet var imidlertid, at der allerede var blevet solgt adskillige hundrede eksemplarer af bøgerne. Næste gang disse mennesker opdaterede deres Kindle, indeholdt opdateringen en lille finesse, der fandt disse bøger i brugerens elektroniske bibliotek og slettede dem.</p>
+<p>Denne sag vakte stor vrede mod Amazon, der i trykte og elektoniske medier blev beskyldt for at krænke deres kunders privatliv og ejendomsret ved at række ind i folks private bogsamlinger og fjerne en bog, som de ikke syntes, skulle være der. Hvis jeg køber en bog hos en boghandler, og det senere viser sig, at boghandleren ikke havde ret til at sælge den, fordi forlaget ikke havde ret til at udgive den, forventer jeg at forlaget og rettighedshaverne finder ud af det indbyrdes gennem en passende udveksling af penge, hvilket kan involvere en retssag eller et udenretligt forlig. Jeg forventer ikke, at boghandleren bryder ind i mit hjem en dag, jeg er på arbejde, finder bogen i reolen og lægger de penge, jeg har givet for bogen, på spisebordet.</p>
+<p>Amazon fandt ret hurtigt ud af, at de ikke havde håndteret problemet særlig godt. Efter få uger udsendte de en uforbeholden og meget ydmyg undskyldning til deres kunder. Amazons kunder kan dog stadig ikke få adgang til kildekoden til deres Kindles, og Amazon udsender fortsat nye opdateringer til deres software, som sagtens kunne udføre en lignende censur én gang til. Amazon undskyldte for, hvad de havde gjort, men det måske vigtigste problem ved hele denne affære undskyldte de ikke for &#8211; nemlig at de overhovedet <em>kunne</em> gøre det.</p>
+<p>Den eneste måde, hvorpå du som ejer af en Kindle for alvor kunne sikre dig mod denne form for misbrug var, hvis du havde adgang til dens kildekode og kunne undersøge og modificere den, så Amazon ikke kan se eller fjerne bøgerne i dit private bibliotek. Det er også det eneste, der kunne sikre dig mod den slags misbrug fra Microsoft og Apples side, som vi har beskrevet. Men hvis du spørger Amazon, Microsoft eller Apple, kommer det end ikke på tale at udlevere kildekoden. Der er formentlig al mulig grund til at tro på de fleste softwareproducenters gode hensigter, men de eksempler, jeg netop har gennemgået &#8211; og jeg kunne nævne mange, mange flere &#8211; skulle gøre det ganske klart for enhver, at problemet eksisterer. Som brugere og forbrugere har vi al mulig grund til at ønske os en bedre aftale omkring de programmer, vi bruger i det daglige, end de store softwareproducenter er villige til at give os.</p>
+</div>
+</div>
+<div id="hvad-er-fri-software">
+<h2>Hvad er fri software?</h2>
+<p>Hvad nu, hvis vi altid havde lov til at undersøge vores computerprogrammer og skille dem ad og samle dem igen, ganske som vi kan med med en cykel? <em>Fri software</em> er software, der forsøger på at løse de problemer med proprietær software, som vi har skitseret i det foregående. Det handler om at stille computerprogrammer til rådighed på samme vilkår, som vi er vant til fra fysiske genstande.</p>
+<p>Rent formelt er et program fri software, hvis du altid har ret til at bruge, undersøge, ændre og videregive det. <em>Bevægelsen</em> for fri software blev opstod i USA i begyndelsen af 1980erne. Den blev i sin nuværende form grundlagt af den legendariske programmør Richard Stallman, der i sit arbejde på Massachusets Institute of Technology (MIT) var blevet meget frustreret over at se, hvordan kommercielle interesser langsomt åd sig ind på det åbne og samarbejdende paradis, som MITs programmører efter Stallmans opfattelse havde formået at skabe, og fordærvede det med krav om, at programmørerne skulle hemmeligholde deres programmers virkemåde for brugerne såvel som for hinanden. Stallman grundlagde i 1983 <em>GNU-projektet</em>, som havde til formål at skabe verdens første helt frie computersystem. Meningen med GNU-projektet er at gøre det muligt for enhver at gøre alt, hvad der giver mening at gøre med en computer, med fri software. <em>Free Software Foundation</em> blev grundlagt i 1984, primært for at have en officiel organisation, som bidrag til GNU-projektet kunne rettes til, så Stallman ikke behøvede at betale skat af dem.</p>
+<p>Free Software Foundation har under Stallmans ledelse udviklet sig til den største og mest indflydelsesrige organisation for fri software med datterforeninger i Indien, Brasilien og Europa og lokalorganisationer i mange flere lande verden over.</p>
+</div>
+<div id="fs-og-open-source">
+<h2>Fri software og open source</h2>
+<p>Et program er som allerede nævnt fri software, hvis man til hver en tid har ret til at <em>bruge</em>, <em>undersøge</em>, <em>ændre</em> og <em>dele</em> det. Kravet om, at man skal kunne undersøge og ændre et computerprogram medfører, at man skal have adgang til programmets <em>kildekode</em>. Det vil med at andet ord sige, at kildekoden skal være <em>åben</em>, så ethvert program, der er fri software, er samtidig også <em>open source</em>.</p>
+<p>Begrebet &#8220;Open Source&#8221; blev indført til en konference, som det amerikanske IT-forlag O&#8217;Reilly afholdt i 1997. I 1998 stiftedes foreningen <em>Open Source Initiative</em> (OSI), der havde til formål at sprede kendskabet til fri software under navnet &#8220;Open Source&#8221;. Open Source-bevægelsen udsprang blandt andet af en frustration hos brugere af fri software, som havde oplevet, at de stod med nogle teknisk set fremragende værktøjer til bogstaveligt talt ingen penge, som erhvervslivet ikke desto mindre var meget tilbageholdende med at bruge. Begrebet &#8220;free software&#8221; lyder på engelsk som &#8220;gratis software&#8221;, og det kunne for en IT-chef i det private lyde som noget, der var alt for godt til at være sandt. Den logiske forklaring, nemlig at der med &#8220;free&#8221; slet ikke tales om, at programmerne er gratis, men tværtimod handler om, at programmerne er <em>frie</em>, havde en tendens til ikke at gøre det bedre. IT-chefer i private firmaer er generelt ikke begejstret for forklaringer om frigørelse og frihed og andet hippiepjat; de er meget mere interesseret i at høre om, hvordan de kan spare penge for deres virksomhed og alligevel få arbejdet gjort.</p>
+<p>Open Source-bevægelsen retter op på dette ved i stedet at fokusere på, at fri adgang til kildekoden giver en bedre udviklingsproces, der fører til bedre og mere stabile programmer. Alle fejl er trivielle, når der er tusinder af øjne til at finde dem, som en af bevægelsens grundlæggere Eric Raymond udtrykte det. For Open Source-bevægelsen bliver hovedfordelen ved fri software (eller &#8220;open source&#8221;, som de oftest kalder det), at det er smartere; billigere for brugeren, bedre for udvikleren. Tilhængere af fri software plejer at indvende, at hovedsagen ikke er, om det er &#8220;smartere&#8221; eller programmerne virker bedre, men derimod den frihed, som fri software giver sine brugere. Hvis Open Source-folkene har ret i, at virksomhederne burde vælge fri (eller &#8220;Open Source&#8221;) software, fordi det er billigere og fungerer bedre, siger de jo hermed, at virksomhederne <em>ikke</em> skal vælge fri software, hvis det er dyrere eller fungerer dårligere. Men hvis hovedsagen vitterlig er, at proprietære programmer giver producenten en ubehagelig grad af kontrol og magt over brugeren, vil det altid være en fordel at holde sig til fri software for at unddrage sig denne kontrol &#8211; også selv om det betyder, at man i en periode er nødt til at vælge et dårligere program, end man ellers kunne have fået.</p>
+<p>Open Source er altså en mere erhvervsrettet markedsføring af begrebet &#8220;fri software&#8221;, der til en vis grad fælder sig selv ved at følge et princip om at vælge det smarteste og det billigste, som i nogle situationer burde få brugerne til at <em>fra</em>-vælge Open Source. Derimod er der ikke nogen forskel af betydning på selve indholdet af de to begreber. Ethvert program, der er &#8220;fri software&#8221;, er af nødvendighed også Open Source, og stort set alle programmer, der opfylder OSIs betingelser for, hvad der er &#8220;Open Source&#8221;, opfylder samtidig kravene for at være fri software. Forskellen handler ikke så meget om indholdet, men om den filosofi, der ligger bag de to bevægelser.</p>
+</div>
+<div id="hvorfor-fri-software">
+<h2>Hvorfor fri software?</h2>
+<p>Et program er fri software, hvis du har uden nogen begrænsning har lov til at <em>bruge</em>, <em>undersøge</em>, <em>ændre</em> og <em>dele</em> det. Det betyder, at du som forbruger har ret til at beskytte dig mod den type misbrug, som vi har beskrevet herover, ved selv at gennemse og ændre i de programmer, du bruger. For rent faktisk at kunne gøre dette, er du dog nødt til at kunne læse og forstå programmernes kildekode.</p>
+<p>Dette vil få mange ikke-programmører til at stille sig selv det egentlig ret oplagte spørgsmål: Hvad skal jeg med en &#8220;ret&#8221; til at ændre og undersøge de programmer, når jeg ikke <em>kan</em>? De fleste mennesker har strengt taget ikke nogen grund til at interessere sig for, hvordan deres programmer virker, hvis bare de virker og gør det, der forventes.</p>
+<p>Spørgsmålet giver mere mening, hvis man husker, at mange softwarekunder ikke er enkeltpersoner, men store organisationer. Hvis du er en organisation med et budget til at få infrastrukturen til at hænge sammen, giver valget af fri software nogle unikke muligheder:</p>
+<ul>
+<li>Sikkerhed &#8211; fri software giver en helt anden adgang til at få programmerne undersøgt for sikkerhedshuller.</li>
+<li>Det er muligt at få rettet fejl uden at det hele behøver at afhænge af producentens tid eller velvilje.</li>
+<li>Hvis producenten går fallit, kan organisationen hyre en programmør til at foretage de ændringer i programmet, der er brug for.</li>
+</ul>
+<p>En virksomhed, der bruger fri software, kan derfor siges at eje sin egen infrastruktur. Virksomheder og andre organisationer, der forlader sig på proprietær software, kan kun få rettet selv vigtige sikkerhedshuller, hvis producenten kan og vil. Dette er formentlig i orden, hvis virksomheden er en mindre købmandsbutik, men mere problematisk, hvis det for eksempel drejer sig om det danske udenrigsministerium eller forsvar.</p>
+</div>
+<div id="fri-software-konsekvenser">
+<h2>Fri software &#8211; konsekvenser</h2>
+<p>Indførelse af fri software i stor målestok har nogle vigtige konsekvenser for programmernes økonomiske værdi og medfører en helt anderledes forretningsmodel for de firmaer, der lever af at sælge og producere computerprogrammer.</p>
+<p>Fri software distribueres efter en lang række konkrete juridiske betingelser, men det bliver udgivet under reglerne i <em>GNU General Public License</em> (GPL). GPL blev udviklet i 1989 af Richard Stallman, der var bekymret for, at et kommercielt firma måske kunne finde på at tage GNU-systemet (det frie styresystem, som han var ved at udvikle) og indbygge i et proprietært system, der var så meget bedre, at ingen ville bruge den frie version. I så fald risikerede han, at hans livsværk blev stjålet og misbrugt til den kontrol over alverdens computerbrugere, som han faktisk er imod. GPL er dermed en slags tillægsklausul, der bruger programmørens ophavsret over programmet til at fastslå, at</p>
+<ul>
+<li>alle har ret til at bruge, undersøge, ændre og videregive programmet, MEN</li>
+<li>enhver der ændrer i programmet og videregiver deres ændringer, er forpligtet til at stille den ændrede version til rådighed for andre på de samme betingelser.</li>
+</ul>
+<p>GPL indfører dermed en slags fundamental retfærdighed i betingelserne for fri software: Det program, som du kan have nytte af at forbedre, skal du selv give videre på samme betingelser, som du fik det. Hvis et stort firma vitterlig gør alvor af at tage et program, der er udgivet under GPL og lave deres helt egen og meget bedre version, kan de ikke af den grund bruge det til at tage kontrol over deres brugere. De vil nemlig være tvunget til at videregive deres egne ændringer under GPL, så alle programmets brugere selv får ret til at undersøge kildekoden og lave deres egne ændringer &#8211; som de så igen kan give videre, så længe de selv respekterer betingelserne i GPL.</p>
+<p>Dette har imidlertid en økonomisk konsekvens, der griber ind i den måde fri software udgives og sælges på. Hvis jeg, så snart jeg har fået fingre i et stykke fri software, har lov til frit at videregive eksemplarer til andre, der herefter selv kan bruge og videregive det uden andre begrænsninger end dem, der ligger i en licensaftale som GPL, så vil der heller ikke være nogen forpligtelse eller tilskyndelse til at opkræve penge for programmet. Hvis det er det, som programmøren lever af, vil programmets første aftagere nødvendigvis komme til at betale ganske mange penge for det &#8211; nemlig programmørens arbejdsløn. Men alle, der herefter får fingre i programmet, vil frit kunne give det videre, som de har lyst til.</p>
+<p>Dette ødelægger det mest givtige element i indtjeningsmodellen hos store softwareproducenter som Microsoft &#8211; nemlig det, at prisen pr. fremstillet eksemplar kommer tættere på nul, jo flere eksemplarer man fremstiller, mens firmaerne ofte bliver ved med at tage det samme pr. <em>solgt</em> eksemplar. Hvis produktet er efterspurgt, kan producenterne hermed på det nærmeste trykke deres egne penge, så snart produktionsomkostningerne er dækket ind.</p>
+<p>For fri software gælder, at prisen pr. solgt (eller uddelt) eksemplar falder til nul, lige så snart programmet er stillet til rådighed for offentligheden. Fri software koster som alt andet professionelt arbejde penge at fremstille, men det enkelte eksemplar er stort set altid <em>gratis</em> at få fat på. Fri software distribueres ved gratis download på internettet, hvorfor alle i hele verden i princippet har adgang til at hente og installere alle programmer, der er udgivet som fri software.</p>
+<p>Dette skaber en helt ny model for udvikling af og arbejde med fri software. Kendetegnende for denne model er, at alle med adgang til en computer med Internet kan deltage. Fri software bliver til ved et samarbejde mellem programmører og firmaer og kan herefter umiddelbart komme hele menneskeheden til gode. Dette i modsætning til proprietær software, der altid skal købes licens for licens.</p>
+<p>Dette medfører en <em>økonomisk demokratisering</em> af adgangen til ny teknologi i form af computerprogrammer. Hvis de bedste, professionelle software-værktøjer i alle kategorier er til rådighed som fri software, kommer denne frie software til at udgøre en fælles pulje af computerprogrammer, som alle mennesker i hele verden har fri adgang til at tage af og bidrage til. Alle mennesker i hele verden får dermed adgang til de bedste værktøjer i alle kategorier, hvis blot de på den ene eller den anden måde kan få adgang til det; direkte gennem en computer med internetadgang, eller indirekte gennem et fysisk medium som en USB-nøgle eller en CD, hvis man bor et sted, hvor det ikke umiddelbart er muligt at få adgang til internettet. Der er ingen dyre softwarelicenser at betale, og bedst af alt: Denne uhæmmede og gratis kopiering og udveksling af frie programmer er helt og aldeles lovlig.</p>
+<p>Det at udstyre en nyindkøbt PC med tidssvarende, professionel software kan i sig selv være noget af en udskrivning, også for folk, der tihører middelklassen i den vestlige verden. De fleste vil gerne have styresystem, office-pakke, billedbehandling og måske filmredigering, og hvis det skal være professionelle licenser, har vi nu allerede passeret de 10.000 kroner til software til én PC alene. I Indien, Kina, Brasilien eller Kenya er den slags programmer aldeles uden for rækkevidde for størstedelen af befolkningen, med mindre de vælger at piratkopiere og dermed udsætte sig for forskellige former for retsforfølgelse. Med fri software er det muligt at udstyre en nyindkøbt eller nygenbrugt PC med helt professionelle værktøjer ganske gratis.</p>
+<p>Det betyder, at et opstartsfirma i et slumkvarter i Nairobi, Mumbai eller Johannesburg med fri software ikke har brug for andet end dygtig arbejdskraft, ideer og en Internetforbindelse for at være 100% &#8220;med&#8221; i konkurrencen med vestlige firmaer i samme branche. Det betyder, at <em>alle</em> får lejlighed til at være med i den moderne, computerdrevne teknologiske udvikling. Du kan få en idé om, hvor stor en barrier, licenser på almindelig proprietær software egentlig udgør, ved at se på pricen for noget så banalt som en licens på Microsoft Office.</p>
+<p>Det er muligt at få en personlig licens for knap tusind kroner. Den dækker dog udtrykkeligt kun ikke-kommerciel hjemmebrug. Hvis du har et bijob som selvstændig og gerne vil skrive fakturaer i Microsoft Word og lave regnskaber i Excel, vil det være ulovligt for dig at bruge hjemmeversionen; i den situation <em>skal</em> du punge ud med de lidt mere end fire tusind kroner, som det koster at få en licens til Microsoft Office Professional. I Danmark er tusind kroner et greb i lommen for de fleste, mens fire tusind kroner er en investering og en stor del af, hvad mange har tilbage at leve for, når de faste udgifter er betalt. Det er ikke helt let at udrede, men hvis det er til virksomheden, kan det jo trækkes fra i skat.</p>
+<p>I Indien, derimod, er tusind kroner en formue, og fire tusind en årsløn. Microsoft har tilpasset sine priser til det indiske marked, men slet ikke en grad, der tager højde for den kolossale ulighed i Indien og gør deres programmer lige så lette at få fat i for den almindelige inder, som de er for den almindelige dansker. Mange indere lader sig selvfølgelig ikke gå på af Microsofts efter deres forhold højst urimelige priser, fordi de i stedet for at betale vælger at piratkopier programmerne. Dette kan selvfølgelig sagtens gå for almindelige borgere, men i det øjeblik et indisk <em>firma</em> begynder at basere sin forretning på piratkopieret software, udsætter det sig selv for sagsanlæg fra producenten og smædekampagner fra sine vestlige konkurrenter. I Rusland er softwarelicenser sågar blevet misbrugt til at undertrykke kritiske medier, idet politiet har gennemført ransagninger og beslaglagt computere hos regeringskritiske tidsskrifter og TV- og radiostationer under påskud af, at disse medier brugte piratkopieret software. Denne beskyldning var muligvis rigtig, men den er mindst lige så rigtig for alle de regeringstro trykte og elektroniske medier, der ikke fik besøg af myndighederne i den anledning. Som altid kan en retstilstand, hvor stort set alle bryder loven, misbruges til at indføre en vilkårlighed, hvor retsstaten stort set afskaffes, fordi myndighederne kan indskrænke sig til at retsforfølge dem, de gerne vil have lukket munden på eller som på anden måde gør sig besværlige. Hvis alle nyhedsmedier, græsrodsbevægelser og politiske grupper i stedet altid kunne lave hele deres produktion i fri software, ville denne form for pression være udelukket.</p>
+<p>Hvis der altid er adgang til fri software af høj kvalitet i alle kategorier, kan <em>alle</em> være med i den teknologiske revolution &#8211; alt, hvad de behøver, er en computer. Det er trods alt værd at tage med i betragtning.</p>
+</div>
+<div id="men-hvad-kan-vi-bruge-det-til">
+<h2>Men hvad kan vi bruge det til?</h2>
+<p>Det store udbud af fri software betyder, at <em>du</em> har adgang til rigtig meget fri software af høj kvalitet. Udvalget spænder fra rene legetøjsprodukter til professionelle værktøjer af høj kvalitet. I nogle tilfælde er de frie programmer ganske enkelt det bedste, der kan fås, mens de forskellige kommercielle programmer overlever på, at kunderne kender dem bedre, eller på at være mere integeret med et proprietært system som Microsoft Windows.</p>
+<p>Rent praktisk betyder udbuddet af fri software, at du har adgang til et stort udvalg af <em>gratis</em> programmer af høj kvalitet. Disse programmer står det dig endvidere frit for at bruge, præcis som du har lyst til. Der er inge begrænsninger på, hvor mange brugere der må være om det, eller hvor mange gange, du må installere det. Der er ingen licensudgifter af nogen art. Du kan frit give disse programmer videre til venner og bekendte, og ved modtagelsen får de overdraget præcis de samme rettigheder.</p>
+<p>Og så er der tale om gode programmer, som er lige til at gå til og komme i gang med at bruge på din computer.</p>
+<p>Nogle af de mest kendte og udbredte eksempler på fri software er:</p>
+<ul>
+<li>Linux eller GNU/Linux, som det også kaldes &#8211; et helt styresystem og konkurrent til Microsoft Windows og Mac OSX, som udelukkende består af fri software. Linux er i virkeligheden ikke så meget et styresystem som det er en meget udbredt teknologi, der står bag en hel familie af styresystemer, som vi plejer at kalde &#8220;Linux&#8221; eller &#8220;GNU/Linux&#8221;. Det mest kendte af disse styresystemer er i øjeblikket <em>Ubuntu</em>.</li>
+<li>Ubuntu er et meget populært Linux-system, der sammen med en Internetforbindelse giver umiddelbar adgang til tusindvis af programmer, der alle er fri software.</li>
+<li>LibreOffice og OpenOffice.org er to Office-pakker, som kan næsten det samme, og som begge er meget populære som en gratis erstatning for Microsoft Office.</li>
+<li>Firefox er verdens næst mest populære Internetbrowser. Den er generelt anerkendt som en sikrere og hurtigere erstatning for Internet Explorer.</li>
+</ul>
+<p>Vi vil på denne hjemmeside gennemgå og fremvise langt flere eksempler på fri software, der kombinerer høj kvalitet og stabilitet med de friheder, som vi i denne vor digitale nutid har al mulig grund til at kræve at kunne tage for givet.</p>
+</div>
+</div>
+</div>
+							
+												
+						</section> <!-- end article section -->
+						
+						<footer>
+			
+														
+														
+						</footer> <!-- end article footer -->
+					
+					</article> <!-- end article -->
+					
+					
+<!-- You can start editing here. -->
+
+
+	    	<!-- If comments are open, but there are no comments. -->
+
+	
+
+
+
+<section id="respond" class="respond-form">
+
+	<h3 id="comment-form-title">Leave a Reply</h3>
+
+	<div id="cancel-comment-reply">
+		<p class="small"><a rel="nofollow" id="cancel-comment-reply-link" href="/2013/10/fri-software-definition-baggrund-og-forklaring/#respond" style="display:none;">Cancel</a></p>
+	</div>
+
+	
+	<form action="http://os.benway.dk/wp-comments-post.php" method="post" class="form-vertical" id="commentform">
+
+		
+	<ul id="comment-form-elements" class="clearfix">
+		
+		<li>
+			<div class="control-group">
+			  <label for="author">Name (required)</label>
+			  <div class="input-prepend">
+			  	<span class="add-on"><i class="icon-user"></i></span><input type="text" name="author" id="author" value="" placeholder="Your Name" tabindex="1" aria-required='true' />
+			  </div>
+		  	</div>
+		</li>
+		
+		<li>
+			<div class="control-group">
+			  <label for="email">E-mail (required)</label>
+			  <div class="input-prepend">
+			  	<span class="add-on"><i class="icon-envelope"></i></span><input type="email" name="email" id="email" value="" placeholder="Your Email" tabindex="2" aria-required='true' />
+			  	<span class="help-inline">(will not be published)</span>
+			  </div>
+		  	</div>
+		</li>
+		
+		<li>
+			<div class="control-group">
+			  <label for="url">Website</label>
+			  <div class="input-prepend">
+			  <span class="add-on"><i class="icon-home"></i></span><input type="url" name="url" id="url" value="" placeholder="Your Website" tabindex="3" />
+			  </div>
+		  	</div>
+		</li>
+		
+	</ul>
+
+		
+	<div class="clearfix">
+		<div class="input">
+			<textarea name="comment" id="comment" placeholder="Your Comment Here…" tabindex="4"></textarea>
+		</div>
+	</div>
+	
+	<div class="form-actions">
+	  <input class="btn btn-primary" name="submit" type="submit" id="submit" tabindex="5" value="Submit Comment" />
+	  <input type='hidden' name='comment_post_ID' value='48' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+	</div>
+	
+		
+	</form>
+	
+	</section>
+
+					
+								
+					
+								
+				</div> <!-- end #main -->
+    
+								<div id="sidebar1" class="fluid-sidebar sidebar span4" role="complementary">
+				
+					
+						<div id="text-3" class="widget widget_text">			<div class="textwidget"><blockquote>As a cryptography and computer security expert, I have never understood the current fuss about the open source software movement. In the cryptography world, we consider open source necessary for good security; we have for decades. </blockquote>
+
+-- Bruce Schneier, Crypto-Gram 1999/09/15 </div>
+		</div>
+					
+				</div>    
+			</div> <!-- end #content -->
+
+			<footer role="contentinfo">
+			
+				<div id="inner-footer" class="clearfix">
+		          <hr />
+		          <div id="widget-footer" class="clearfix row-fluid">
+		            <div id="text-2" class="widget span4 widget_text">			<div class="textwidget"><a href="/?p=344"">Credits page</a></div>
+		</div>		            		            		            		            		          </div>
+					
+					<nav class="clearfix">
+											</nav>
+					
+					<p class="pull-right"><a href="http://320press.com" id="credit320" title="By the dudes of 320press">320press</a></p>
+			
+					<p class="attribution">&copy; opensource.dk</p>
+				
+				</div> <!-- end #inner-footer -->
+				
+			</footer> <!-- end footer -->
+		
+		</div> <!-- end #container -->
+				
+		<!--[if lt IE 7 ]>
+  			<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+  			<script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+		<![endif]-->
+		
+		<script type='text/javascript' src='http://os.benway.dk/wp-includes/js/comment-reply.min.js?ver=4.0'></script>
+
+	</body>
+
+</html>
+<!-- Performance optimized by W3 Total Cache. Learn more: http://www.w3-edge.com/wordpress-plugins/
+
+Page Caching using disk: enhanced
+Database Caching 22/37 queries in 0.050 seconds using disk
+
+ Served from: os.benway.dk @ 2014-12-14 05:51:16 by W3 Total Cache -->

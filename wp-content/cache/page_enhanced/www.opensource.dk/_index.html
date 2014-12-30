@@ -1,0 +1,313 @@
+
+<!doctype html>  
+
+<!--[if IEMobile 7 ]> <html lang="da-DK"class="no-js iem7"> <![endif]-->
+<!--[if lt IE 7 ]> <html lang="da-DK" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="da-DK" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="da-DK" class="no-js ie8"> <![endif]-->
+<!--[if (gte IE 9)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html lang="da-DK" class="no-js"><!--<![endif]-->
+	
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		
+		<title>opensource.dk | Fri software og open source portal</title>
+				
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				
+		<!-- media-queries.js (fallback) -->
+		<!--[if lt IE 9]>
+			<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>			
+		<![endif]-->
+
+		<!-- html5.js -->
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		
+  		<link rel="pingback" href="http://os.benway.dk/xmlrpc.php">
+
+		<!-- wordpress head functions -->
+		<link rel='stylesheet' id='ai1ec_style-css'  href='http://os.benway.dk/?ai1ec_render_css=1411464507&#038;ver=2.0.13' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-css'  href='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/css/bootstrap.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-responsive-css'  href='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/css/responsive.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-bootstrap-css'  href='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master-child/style.css?ver=1.0' type='text/css' media='all' />
+<script type='text/javascript' src='http://os.benway.dk/wp-includes/js/jquery/jquery.js?ver=1.11.1'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/js/bootstrap.min.js?ver=1.2'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/js/scripts.js?ver=1.2'></script>
+<script type='text/javascript' src='http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/library/js/modernizr.full.min.js?ver=1.2'></script>
+<link rel='canonical' href='http://os.benway.dk/' />
+<link rel='shortlink' href='http://os.benway.dk/' />
+
+
+<!-- Plugin: Åbn eksterne links i et nyt vindue. Plugin af Kristian Risager Larsen, http://kristianrisagerlarsen.dk . Hent det fra http://wordpress.org/extend/plugins/open-external-links-in-a-new-window/ -->
+<script type="text/javascript">//<![CDATA[
+	function external_links_in_new_windows_loop() {
+		if (!document.links) {
+			document.links = document.getElementsByTagName('a');
+		}
+		var change_link = false;
+		var force = '';
+		var ignore = '';
+
+		for (var t=0; t<document.links.length; t++) {
+			var all_links = document.links[t];
+			change_link = false;
+			
+			if(document.links[t].hasAttribute('onClick') == false) {
+				// forced if the address starts with http (or also https), but does not link to the current domain
+				if(all_links.href.search(/^http/) != -1 && all_links.href.search('os.benway.dk') == -1) {
+					// alert('Changeda '+all_links.href);
+					change_link = true;
+				}
+					
+				if(force != '' && all_links.href.search(force) != -1) {
+					// forced
+					// alert('force '+all_links.href);
+					change_link = true;
+				}
+				
+				if(ignore != '' && all_links.href.search(ignore) != -1) {
+					// alert('ignore '+all_links.href);
+					// ignored
+					change_link = false;
+				}
+
+				if(change_link == true) {
+					// alert('Changed '+all_links.href);
+					document.links[t].setAttribute('onClick', 'javascript:window.open(\''+all_links.href+'\'); return false;');
+					document.links[t].removeAttribute('target');
+				}
+			}
+		}
+	}
+	
+	// Load
+	function external_links_in_new_windows_load(func)
+	{	
+		var oldonload = window.onload;
+		if (typeof window.onload != 'function'){
+			window.onload = func;
+		} else {
+			window.onload = function(){
+				oldonload();
+				func();
+			}
+		}
+	}
+
+	external_links_in_new_windows_load(external_links_in_new_windows_loop);
+	//]]></script>
+
+		<!-- end of wordpress head -->
+
+		<!-- theme options from options panel -->
+		<style>
+        h1, h2, h3, h4, h5, h6{ 
+          font-family: arial; 
+          font-weight: normal; 
+          color: ; 
+        }
+        body{ 
+          font-family: arial; 
+          font-weight: normal; 
+          color: ; 
+        }
+        #main article {
+          border-bottom: none;
+        }
+        </style><link rel="stylesheet" href="http://os.benway.dk/wp-content/themes/wordpress-bootstrap-master/admin/themes/united.css">
+		<!-- typeahead plugin - if top nav search bar enabled -->
+						
+	</head>
+	
+	<body class="home page page-id-341 page-template page-template-page-homepage-php">
+				
+		<header role="banner">
+		
+			<div id="inner-header" class="clearfix">
+				
+				<div class="navbar navbar-fixed-top">
+					<div class="navbar-inner">
+						<div class="container-fluid nav-container">
+							<nav role="navigation">
+								<a class="brand" id="logo" title="Fri software og open source portal" href="http://os.benway.dk">
+									opensource.dk</a>
+								
+								<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+							        <span class="icon-bar"></span>
+							        <span class="icon-bar"></span>
+							        <span class="icon-bar"></span>
+								</a>
+								
+								<div class="nav-collapse">
+									<ul id="menu-main-menu" class="nav"><li id="menu-item-125" class="menu-item menu-item-type-post_type menu-item-object-post"><a title="Definition af fri software og hvorfor det er vigtigt." href="http://os.benway.dk/2013/10/fri-software-definition/">Fri software &#8211; hvorfor?</a></li><li id="menu-item-55" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://os.benway.dk/events/">Events</a></li><li id="menu-item-56" class="menu-item menu-item-type-post_type menu-item-object-post"><a title="Lær mere om open source og fri software licenserne her." href="http://os.benway.dk/2013/09/open-source-licenser-kort-fortalt/">Licenser for dummies</a></li><li id="menu-item-362" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://os.benway.dk/foreninger-organisationer/">Foreninger og organisationer</a></li><li id="menu-item-369" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://os.benway.dk/om-os/">Om os</a></li></ul>								</div>
+								
+							</nav>
+							
+														
+						</div> <!-- end .nav-container -->
+					</div> <!-- end .navbar-inner -->
+				</div> <!-- end .navbar -->
+			
+			</div> <!-- end #inner-header -->
+		
+		</header> <!-- end header -->
+		
+		<div class="container-fluid">
+			
+			<div id="content" class="clearfix row-fluid">
+			
+				<div id="main" class="span12 clearfix" role="main">
+
+					
+					<div id="myCarousel" class="carousel">
+
+					    <!-- Carousel items -->
+					    <div class="carousel-inner">
+
+					    	
+						    <div class="active item">
+						    	<a href="http://os.benway.dk/case/drupal/" rel="bookmark" title="Drupal"><img src="http://os.benway.dk/wp-content/uploads/2013/11/drupalcon_2010_cropped.jpg" class="attachment-wpbs-featured-carousel wp-post-image" alt="DrupalCon Copenhagen 2011" /></a>
+
+							   	<div class="carousel-caption">
+
+					                <h4><a href="http://os.benway.dk/case/drupal/" rel="bookmark" title="Drupal">Drupal</a></h4>
+					                <p>
+					                	Drupal er et meget fleksibelt CMS-system,  med et tusindvis af ... <a href="http://os.benway.dk/case/drupal/" rel="bookmark" title="Drupal" class="btn btn-primary">Læs mere &rsaquo;</a>					                						                </p>
+
+				                </div>
+						    </div>
+
+						    
+						    <div class=" item">
+						    	<a href="http://os.benway.dk/case/libreoffice/" rel="bookmark" title="LibreOffice"><img src="http://os.benway.dk/wp-content/uploads/2014/05/Wallpaper-LibO-2-v2-970x400.jpg" class="attachment-wpbs-featured-carousel wp-post-image" alt="LibreOffice" /></a>
+
+							   	<div class="carousel-caption">
+
+					                <h4><a href="http://os.benway.dk/case/libreoffice/" rel="bookmark" title="LibreOffice">LibreOffice</a></h4>
+					                <p>
+					                	LibreOffice er den frie open source kontorpakke til Windows, Macintosh ... <a href="http://os.benway.dk/case/libreoffice/" rel="bookmark" title="LibreOffice" class="btn btn-primary">Læs mere &rsaquo;</a>					                						                </p>
+
+				                </div>
+						    </div>
+
+						    							
+					    </div>
+
+					    <!-- Carousel nav -->
+					    <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+					    <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+				    </div>
+
+				    
+										
+					<article id="post-341" class="post-341 page type-page status-publish hentry clearfix" role="article">
+
+						
+						<section class="row-fluid post_content">
+						
+							<div class="span8">
+						
+																
+							</div>
+							
+																				
+						</section> <!-- end article header -->
+
+						<section class="target-group-areas clearfix">
+
+														<div id="text-5" class="widget span4 widget_text">			<div class="textwidget"><ul class='thumbnails'>
+	<li class='span4'>
+		<div class='thumbnail'>
+			<a class='front-page-thumbs' href='/category/malgruppe/ledelse/'><img alt='Billede af DR Byen' src='/wp-content/themes/wordpress-bootstrap-master-child/images/dr_byen_cropped.jpg'>
+			<div class='caption'></a>
+				<h3>Open source i organisationen</h3>
+				<p>Er det ved at være på tide at forny CMS-systemet eller kontorpakken? En Open source
+					løsning kan være det I leder efter.</p>
+				<p><a class='btn btn-primary' href='/category/malgruppe/ledelse/'>Læs mere</a></p>
+			</div>
+		</div>
+	</li>
+
+	<li class='span4'>
+		<div class='thumbnail'>
+			<a class='front-page-thumbs' href='/?p=53'><img alt='Sammensat Open source og Fri software gnu' src='/wp-content/themes/wordpress-bootstrap-master-child/images/Free_Software_and_Open_Source_Software_Composite_Logo_cropped_homepage.png'></a>
+			<div class='caption'>
+				<h3>Hurtige facts om Fri software og Open source</h3>
+				<p>Hvad er op og ned i snakken om fri software, open source og proprietær software? 
+					Få en hurtig introduktion.</p>
+				<p><a class='btn btn-primary' href='/?p=53'>Læs mere</a></p>
+			</div>
+		</div>
+	</li>
+
+	<li class='span4'>
+		<div class='thumbnail'>
+			<a class='front-page-thumbs' href='/category/malgruppe/privatpersoner/'><img alt='Sammensat Open source og Fri software gnu' src='/wp-content/themes/wordpress-bootstrap-master-child/images/big_buck_bunny_cropped_homepage.png'></a>
+			<div class='caption'>
+				<h3>Få fuld kontrol over din computer</h3>
+				<p>Træt af dyre licenser, vira og langsomme pc'er? Så er det på tide at prøve noget nyt.</p>
+				<p><a class='btn btn-primary' href='/category/malgruppe/privatpersoner/'>Læs mere</a></p>
+			</div>
+		</div>
+	</li>
+</ul></div>
+		</div>											
+						</section>
+						
+						<footer>
+			
+							<p class="clearfix"></p>
+							
+						</footer> <!-- end article footer -->
+					
+					</article> <!-- end article -->
+					
+										
+						
+					
+								
+				</div> <!-- end #main -->
+    
+				    
+			</div> <!-- end #content -->
+
+			<footer role="contentinfo">
+			
+				<div id="inner-footer" class="clearfix">
+		          <hr />
+		          <div id="widget-footer" class="clearfix row-fluid">
+		            <div id="text-2" class="widget span4 widget_text">			<div class="textwidget"><a href="/?p=344"">Credits page</a></div>
+		</div>		            		            		            		            		          </div>
+					
+					<nav class="clearfix">
+											</nav>
+					
+					<p class="pull-right"><a href="http://320press.com" id="credit320" title="By the dudes of 320press">320press</a></p>
+			
+					<p class="attribution">&copy; opensource.dk</p>
+				
+				</div> <!-- end #inner-footer -->
+				
+			</footer> <!-- end footer -->
+		
+		</div> <!-- end #container -->
+				
+		<!--[if lt IE 7 ]>
+  			<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+  			<script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+		<![endif]-->
+		
+		<script type='text/javascript' src='http://os.benway.dk/wp-includes/js/comment-reply.min.js?ver=4.0'></script>
+
+	</body>
+
+</html>
+<!-- Performance optimized by W3 Total Cache. Learn more: http://www.w3-edge.com/wordpress-plugins/
+
+Page Caching using disk: enhanced
+Database Caching using disk
+
+ Served from: www.opensource.dk @ 2014-11-26 23:14:43 by W3 Total Cache -->
