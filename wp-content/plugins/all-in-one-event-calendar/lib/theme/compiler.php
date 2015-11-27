@@ -39,6 +39,12 @@ class Ai1ec_Theme_Compiler extends Ai1ec_Base {
 		$loader = $this->_registry->get( 'theme.loader' );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 		$start  = microtime( true );
+		if ( ! $this->clean_and_check_dir( AI1EC_TWIG_CACHE_PATH ) ) {
+
+			throw new Ai1ec_Bootstrap_Exception(
+				'Failed to create cache directory: ' . AI1EC_TWIG_CACHE_PATH
+			);
+		}
 		foreach ( array( true, false ) as $for_admin ) {
 			$twig  = $loader->get_twig_instance( $for_admin, true );
 			$files = $this->get_files( $twig );
@@ -118,17 +124,12 @@ class Ai1ec_Theme_Compiler extends Ai1ec_Base {
 	 *
 	 * @param array $environment Initial environment arguments.
 	 *
-	 * @return 
+	 * @return
 	 */
 	public function ai1ec_twig_environment( array $environment ) {
 		$environment['debug']       = false;
 		$environment['cache']       = AI1EC_TWIG_CACHE_PATH;
 		$environment['auto_reload'] = true;
-		if ( ! $this->_check_dir( $environment['cache'] ) ) {
-			throw new Ai1ec_Bootstrap_Exception(
-				'Failed to create cache directory: ' . $environment['cache']
-			);
-		}
 		return $environment;
 	}
 
@@ -142,23 +143,22 @@ class Ai1ec_Theme_Compiler extends Ai1ec_Base {
 	 *
 	 * @return bool Validity.
 	 */
-	protected function _check_dir( $cache_dir ) {
-		$parent    = dirname( realpath( $cache_dir ) );
-		$gitignore = null;
-		$gitfile   = $parent . DIRECTORY_SEPARATOR . '.gitignore';
-		if ( is_file( $gitfile ) ) {
-			$gitignore = file_get_contents( $gitfile );
-		}
-		if ( ! $this->_prune_dir( $parent ) ) {
+	public function clean_and_check_dir( $cache_dir ) {
+		try {
+			$parent = realpath( $cache_dir );
+			if ( ! $this->_prune_dir( $parent ) ) {
+				return false;
+			}
+			if (
+				is_dir( $cache_dir ) && chmod( $cache_dir, 0754 )
+				|| mkdir( $cache_dir, 0754, true )
+			) {
+				return true;
+			}
+			return false;
+		} catch ( Exception $exc ) {
 			return false;
 		}
-		if ( mkdir( $cache_dir, 0755, true ) ) {
-			if ( null !== $gitignore ) {
-				file_put_contents( $gitfile, $gitignore );
-			}
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -177,7 +177,21 @@ class Ai1ec_Theme_Compiler extends Ai1ec_Base {
 			return false;
 		}
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( '.' === $file || '..' === $file ) {
+			if ( '.' === $file{0} ) {
+				continue;
+			}
+			$basename = basename( $file, '.php' );
+			// continue deleting only if:
+			// - it's 60 characters length (filename w/o '.php')
+			// - OR it's 2 characters length (directory)
+			// - AND (with two above) it's hex encoded string
+			if (
+				! (
+					( isset( $basename{59} ) && ! isset( $basename{60} ) ) ||
+					( isset( $basename{1} )	 && ! isset( $basename{2}  ) ) &&
+					ctype_xdigit( $basename )
+				)
+			) {
 				continue;
 			}
 			$path = $cache_dir . DIRECTORY_SEPARATOR . $file;
@@ -192,6 +206,9 @@ class Ai1ec_Theme_Compiler extends Ai1ec_Base {
 			}
 		}
 		closedir( $handle );
+		if ( is_file( $cache_dir . DIRECTORY_SEPARATOR . 'EMPTY' ) ) {
+			return true; // ignore, this directory is intentionally here
+		}
 		return rmdir( $cache_dir );
 	}
 

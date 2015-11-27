@@ -18,7 +18,7 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 
 	const ICS_OPTION_DB_VERSION = 'ai1ec_ics_db_version';
 
-	const ICS_DB_VERSION        = 106;
+	const ICS_DB_VERSION        = 221;
 
 	/**
 	 * @var array
@@ -104,8 +104,8 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 		$output = array();
 		if ( $feed ) {
 
-			$count = 0;
-			$message = false;
+			$count    = 0;
+			$message  = false;
 			// reimport the feed
 			$response = wp_remote_get(
 				$feed->feed_url,
@@ -150,41 +150,50 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 						$args['do_show_map'] = 1;
 					}
 					$args['source'] = $response['body'];
+					do_action( 'ai1ec_ics_before_import', $args );
 					$result = $import_export->import_events( 'ics', $args );
+					do_action( 'ai1ec_ics_after_import' );
 					$count  = $result['count'];
+					$feed_name = ! empty( $result['name'][1] ) ? $result['name'][1] : $feed->feed_url;
 					// we must flip again the array to iterate over it
-					$events_to_delete = array_flip( $result['events_to_delete'] );
-					foreach ( $events_to_delete as $event_id ) {
-						wp_delete_post( $event_id, true );
+					if ( 0 == $feed->keep_old_events ) {
+						$events_to_delete = array_flip( $result['events_to_delete'] );
+						foreach ( $events_to_delete as $event_id ) {
+							wp_delete_post( $event_id, true );
+						}
 					}
 				} catch ( Ai1ec_Parse_Exception $e ) {
-					$message = "the provided feed didn't return valid ics data";
+					$message = "The provided feed didn't return valid ics data";
 				} catch ( Ai1ec_Engine_Not_Set_Exception $e ) {
-					$message = "ics import is not supported on this install.";
+					$message = "ICS import is not supported on this install.";
+				} catch ( Ai1ec_Event_Create_Exception $e ) {
+					$message = $e->getMessage();
 				}
+			} else if ( is_wp_error( $response ) ) {
+				$message = sprintf(
+					__(
+						'A system error has prevented calendar data from being fetched. Something is preventing the plugin from functioning correctly. This message should provide a clue: %s',
+						AI1EC_PLUGIN_NAME
+					),
+					$response->get_error_message()
+				);
 			} else {
 				$message = __(
-					"We couldn't find a valid transport to fetch the calendar data.
-					You should set allow_url_fopen in php.ini as suggested in
-					<a href='http://forums.hostdime.com/showthread.php?8620-PHP-allow_url_fopen' target='_blank' >this</a> article",
+					"Calendar data could not be fetched. If your URL is valid and contains an iCalendar resource, this is likely the result of a temporary server error and time may resolve this issue",
 					AI1EC_PLUGIN_NAME
 				);
 			}
-
-
-			if ( $count == 0 ) {
-				// If results are 0, it could be result of a bad URL or other error, send a specific message
-				$return_message = false === $message ?
-					__( 'No events were found', AI1EC_PLUGIN_NAME ) :
-					$message;
+			if ( $message ) {
+				// If we already got an error message, display it.
 				$output['data'] = array(
 						'error'   => true,
-						'message' => $return_message
+						'message' => $message,
 				);
 			} else {
 				$output['data'] = array(
-						'error'       => false,
-						'message'     => sprintf( _n( 'Imported %s event', 'Imported %s events', $count, AI1EC_PLUGIN_NAME ), $count ),
+						'error'   => false,
+						'message' => sprintf( _n( 'Imported %s event', 'Imported %s events', $count, AI1EC_PLUGIN_NAME ), $count ),
+						'name'    => $feed_name,
 				);
 			}
 		} else {
@@ -210,11 +219,13 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 		}
 		$translations = array(
 			'[feed_url]'   => $_POST['ai1ec_calendar_url'],
-			'[categories]' => implode( ', ' , $categories ),
+			'[categories]' => implode( ', ', $categories ),
 			'[user_email]' => $_POST['ai1ec_submitter_email'],
 			'[site_title]' => get_bloginfo( 'name' ),
-			'[site_url]'   => site_url(),
-			'[feeds_url]'  => admin_url( AI1EC_FEED_SETTINGS_BASE_URL . '#ics' ),
+			'[site_url]'   => ai1ec_site_url(),
+			'[feeds_url]'  => ai1ec_admin_url(
+				AI1EC_FEED_SETTINGS_BASE_URL . '#ics'
+			),
 		);
 		return $translations;
 	}
@@ -251,11 +262,14 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 			$sql = "CREATE TABLE $table_name (
 					feed_id bigint(20) NOT NULL AUTO_INCREMENT,
 					feed_url varchar(255) NOT NULL,
+					feed_name varchar(255) NOT NULL,
 					feed_category varchar(255) NOT NULL,
 					feed_tags varchar(255) NOT NULL,
 					comments_enabled tinyint(1) NOT NULL DEFAULT '1',
 					map_display_enabled tinyint(1) NOT NULL DEFAULT '0',
 					keep_tags_categories tinyint(1) NOT NULL DEFAULT '0',
+					keep_old_events tinyint(1) NOT NULL DEFAULT '0',
+					import_timezone tinyint(1) NOT NULL DEFAULT '0',
 					PRIMARY KEY  (feed_id),
 					UNIQUE KEY feed (feed_url)
 					) CHARACTER SET utf8;";
@@ -308,10 +322,11 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 	 */
 	public function handle_feeds_page_post() {
 		$settings = $this->_registry->get( 'model.settings' );
-		if ( isset( $_POST['ai1ec_save_settings'] ) ) {
+		if ( isset( $_POST['cron_freq'] ) ) {
 			$settings->set( 'ics_cron_freq', $_REQUEST['cron_freq'] );
 		}
 	}
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -370,6 +385,7 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 			array( 'cron_freq' => $settings->get( 'ics_cron_freq' ) ),
 			true
 		);
+
 		$args = array(
 			'cron_freq'        => $cron_freq->get_content(),
 			'event_categories' => $select2_cats,
@@ -401,11 +417,14 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 			array(
 				'feed_id',
 				'feed_url',
+				'feed_name',
 				'feed_category',
 				'feed_tags',
 				'comments_enabled',
 				'map_display_enabled',
 				'keep_tags_categories',
+				'keep_old_events',
+				'import_timezone',
 			)
 		);
 
@@ -429,10 +448,13 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 
 			$args          = array(
 				'feed_url'            => $row->feed_url,
+				'feed_name'           => ! empty( $row->feed_name ) ? $row->feed_name : $row->feed_url,
 				'event_category'      => implode( ', ', $categories ),
+				'categories_ids'      => $row->feed_category,
 				'tags'                => stripslashes(
 					str_replace( ',', ', ', $row->feed_tags )
 				),
+				'tags_ids'            => $row->feed_tags,
 				'feed_id'             => $row->feed_id,
 				'comments_enabled'    => (bool) intval(
 						$row->comments_enabled
@@ -442,6 +464,12 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 				),
 				'keep_tags_categories' => (bool) intval(
 						$row->keep_tags_categories
+				),
+				'keep_old_events'      => (bool) intval(
+						$row->keep_old_events
+				),
+				'feed_import_timezone' => (bool) intval(
+					$row->import_timezone
 				),
 			);
 			$html .= $theme_loader->get_file( 'feed_row.php', $args, true )
@@ -486,63 +514,127 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 	 *
 	 */
 	public function add_ics_feed() {
+		check_ajax_referer( 'ai1ec_ics_feed_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_ai1ec_feeds' ) ) {
+			wp_die( Ai1ec_I18n::__( 'Oh, submission was not accepted.' ) );
+		}
 		$db = $this->_registry->get( 'dbi.dbi' );
 		$table_name = $db->get_table_name( 'ai1ec_event_feeds' );
 
 		$feed_categories = empty( $_REQUEST['feed_category'] ) ? '' : implode(
 			',', $_REQUEST['feed_category'] );
-		$entry = array( 'feed_url' => $_REQUEST['feed_url'],
-			'feed_category' => $feed_categories,
-			'feed_tags' => $_REQUEST['feed_tags'],
-			'comments_enabled' => Ai1ec_Primitive_Int::db_bool(
-				$_REQUEST['comments_enabled'] ),
-			'map_display_enabled' => Ai1ec_Primitive_Int::db_bool(
-				$_REQUEST['map_display_enabled'] ),
+		$entry = array(
+			'feed_url'             => $_REQUEST['feed_url'],
+			'feed_name'            => $_REQUEST['feed_url'],
+			'feed_category'        => $feed_categories,
+			'feed_tags'            => $_REQUEST['feed_tags'],
+			'comments_enabled'     => Ai1ec_Primitive_Int::db_bool(
+				$_REQUEST['comments_enabled']
+			),
+			'map_display_enabled'  => Ai1ec_Primitive_Int::db_bool(
+				$_REQUEST['map_display_enabled']
+			),
 			'keep_tags_categories' => Ai1ec_Primitive_Int::db_bool(
-				$_REQUEST['keep_tags_categories'] )
+				$_REQUEST['keep_tags_categories']
+			),
+			'keep_old_events' => Ai1ec_Primitive_Int::db_bool(
+				$_REQUEST['keep_old_events']
+			),
+			'import_timezone' => Ai1ec_Primitive_Int::db_bool(
+				$_REQUEST['feed_import_timezone']
+			),
 		);
-
-		$format = array( '%s', '%s', '%s', '%d', '%d', '%d'
+		$entry = apply_filters( 'ai1ec_ics_feed_entry', $entry );
+		$json_strategy = $this->_registry->get(
+			'http.response.render.strategy.json'
 		);
+		if ( is_wp_error( $entry ) ) {
+			$output = array(
+				'error'   => true,
+				'message' => $entry->get_error_message()
+			);
+			return $json_strategy->render( array( 'data' => $output ) );
+		}
 
-		$res = $db->insert( $table_name, $entry, $format );
-		$feed_id = $db->get_insert_id();
+		$format     = array( '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d' );
+		if ( ! empty( $_REQUEST['feed_id'] ) ) {
+			$feed_id = $_REQUEST['feed_id'];
+			$db->update(
+				$table_name,
+				$entry,
+				array( 'feed_id' => $feed_id )
+			);
+		} else {
+			$res        = $db->insert( $table_name, $entry, $format );
+			$feed_id    = $db->get_insert_id();
+		}
 
 		$categories = array();
+		do_action( 'ai1ec_ics_feed_added', $feed_id, $entry );
 
+		$update = $this->update_ics_feed( $feed_id );
+		if ( $update['data']['error'] ) {
+			$this->delete_ics_feed( false, $feed_id );
+			return $json_strategy->render( $update );
+		}
+		$feed_name = $update['data']['name'];
+		$db->update(
+			$table_name,
+			array(
+				'feed_name' => $feed_name
+			),
+			array( 'feed_id' => $feed_id )
+		);
+
+		$cat_ids = '';
 		if ( ! empty( $_REQUEST['feed_category'] ) ) {
 			foreach ( $_REQUEST['feed_category'] as $cat_id ) {
 				$feed_category = get_term( $cat_id, 'events_categories' );
-				$categories[] = $feed_category->name;
+				$categories[]  = $feed_category->name;
 			}
+			$cat_ids = implode( ',', $_REQUEST['feed_category'] );
 		}
 
-		$args = array( 'feed_url' => $_REQUEST['feed_url'],
-			'event_category' => implode( ', ', $categories ),
-			'tags' => str_replace( ',', ', ', $_REQUEST['feed_tags'] ),
-			'feed_id' => $feed_id,
-			'comments_enabled' => (bool) intval( $_REQUEST['comments_enabled'] ),
-			'map_display_enabled' => (bool) intval(
+		$args = array(
+			'feed_url'             => $_REQUEST['feed_url'],
+			'feed_name'            => $feed_name,
+			'event_category'       => implode( ', ', $categories ),
+			'categories_ids'       => $cat_ids,
+			'tags'                 => str_replace(
+				',',
+				', ',
+				$_REQUEST['feed_tags']
+			),
+			'tags_ids'             => $_REQUEST['feed_tags'],
+			'feed_id'              => $feed_id,
+			'comments_enabled'     => (bool) intval(
+				$_REQUEST['comments_enabled']
+			),
+			'map_display_enabled'  => (bool) intval(
 				$_REQUEST['map_display_enabled']
 			),
-			'events' => 0,
+			'events'               => 0,
 			'keep_tags_categories' => (bool) intval(
 				$_REQUEST['keep_tags_categories']
-			)
+			),
+			'keep_old_events' => (bool) intval(
+				$_REQUEST['keep_old_events']
+			),
+			'feed_import_timezone' => (bool) intval(
+				$_REQUEST['feed_import_timezone']
+			),
 		);
+
+		// Display added feed row.
 		$loader = $this->_registry->get( 'theme.loader' );
-		// display added feed row
-		$file = $loader->get_file( 'feed_row.php', $args, true );
-
+		$file   = $loader->get_file( 'feed_row.php', $args, true );
 		$output = $file->get_content();
-
 		$output = array(
-			"error" => 0,
-			"message" =>
-			stripslashes( $output )
+			'error'   => false,
+			'message' => stripslashes( $output ),
+			'update'  => $update,
 		);
-		echo json_encode( $output );
-		exit();
+		return $json_strategy->render( array( 'data' => $output ) );
 	}
 
 	/**
@@ -556,7 +648,10 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 			if ( $output['error'] === false ) {
 				$this->delete_ics_feed( false, $ics_id );
 			}
-			echo json_encode( $output );
+			$json_strategy = $this->_registry->get(
+				'http.response.render.strategy.json'
+			);
+			return $json_strategy->render( array( 'data' => $output ) );
 		} else {
 			$this->delete_ics_feed( true, $ics_id );
 		}
@@ -634,13 +729,17 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 		}
 		$table_name = $db->get_table_name( 'ai1ec_event_feeds' );
 		$db->query( $db->prepare( "DELETE FROM {$table_name} WHERE feed_id = %d", $ics_id ) );
+		do_action( 'ai1ec_ics_feed_deleted', $ics_id );
 		$output = array(
 			'error'   => false,
 			'message' => __( 'Feed deleted', AI1EC_PLUGIN_NAME ),
 			'ics_id'  => $ics_id,
 		);
 		if ( $ajax ) {
-			echo json_encode( $output );
+			$json_strategy = $this->_registry->get(
+				'http.response.render.strategy.json'
+			);
+			return $json_strategy->render( array( 'data' => $output ) );
 		}
 	}
 
@@ -654,5 +753,4 @@ class Ai1ecIcsConnectorPlugin extends Ai1ec_Connector_Plugin {
 	protected function _import_lock_name( $feed_id ) {
 		return 'ics_import_' . (int)$feed_id;
 	}
-
 }

@@ -4,6 +4,7 @@
 		href="#ai1ec-event-contact-box">
 		<i class="ai1ec-fa ai1ec-fa-phone ai1ec-fa-fw"></i>
 		<?php _e( 'Organizer contact info', AI1EC_PLUGIN_NAME ); ?>
+		<i class="ai1ec-fa ai1ec-fa-warning ai1ec-fa-fw ai1ec-hidden"></i>
 	</a>
 </div>
 <div id="ai1ec-event-contact-box" class="ai1ec-panel-collapse ai1ec-collapse">
@@ -52,14 +53,14 @@
 				<tr>
 					<td>
 						<label for="ai1ec_contact_url">
-							<?php _e( 'External URL:', AI1EC_PLUGIN_NAME ); ?>
+							<?php _e( 'Website URL:', AI1EC_PLUGIN_NAME ); ?>
 						</label>
 					</td>
 					<td>
 						<input type="text" name="ai1ec_contact_url"
 							id="ai1ec_contact_url"
 							class="ai1ec-form-control"
-							value="<?php echo esc_attr( $event->get_nonloggable_url( $contact_url ) ); ?>">
+							value="<?php echo esc_attr( $contact_url ); ?>">
 					</td>
 				</tr>
 			</tbody>

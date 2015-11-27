@@ -41,7 +41,7 @@ abstract class Ai1ec_Command {
 
 	/**
 	 * Gets parameters from the request object.
-	 * 
+	 *
 	 * @return array|boolean
 	 */
 	public function get_parameters() {
@@ -49,8 +49,10 @@ abstract class Ai1ec_Command {
 		$plugin     = Ai1ec_Request_Parser::get_param( 'plugin', $plugin );
 		$controller = Ai1ec_Request_Parser::get_param( 'controller', $controller );
 		$action     = Ai1ec_Request_Parser::get_param( 'action', $action );
-		if ( (string)AI1EC_PLUGIN_NAME === (string)$plugin && 
-			null !== $controller && 
+		if (
+			is_scalar( $plugin ) &&
+			(string)AI1EC_PLUGIN_NAME === (string)$plugin &&
+			null !== $controller &&
 			null !== $action
 		) {
 			return array(
@@ -68,12 +70,21 @@ abstract class Ai1ec_Command {
 	 * @return void
 	 */
 	public function execute() {
-		// get the data from the concrete implementation
-		$data = $this->do_execute();
 		// Set the render strategy
 		$this->set_render_strategy( $this->_request );
+		// get the data from the concrete implementation
+		$data = $this->do_execute();
 		// render it.
 		$this->_render_strategy->render( $data );
+	}
+
+	/**
+	 * Defines whether to stop execution of command loop or not.
+	 *
+	 * @return bool True or false.
+	 */
+	public function stop_execution() {
+		return false;
 	}
 
 	/**
@@ -96,10 +107,10 @@ abstract class Ai1ec_Command {
 	 * @return boolean
 	 */
 	abstract public function is_this_to_execute();
-	
+
 	/**
 	 * Sets the render strategy.
-	 * 
+	 *
 	 * @param Ai1ec_Request_Parser $request
 	 */
 	abstract public function set_render_strategy( Ai1ec_Request_Parser $request );

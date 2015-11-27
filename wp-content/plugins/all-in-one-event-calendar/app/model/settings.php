@@ -45,12 +45,25 @@ class Ai1ec_Settings extends Ai1ec_App {
 		$value,
 		$type,
 		$renderer,
-		$version = '2.0a'
+		$version = '2.0.0'
 	) {
-		if (
+
+		if ( 'deprecated' === $type ) {
+			unset( $this->_options[$option] );
+		} else if (
 			! isset( $this->_options[$option] ) ||
 			! isset( $this->_options[$option]['version'] ) ||
-			(string)$this->_options[$option]['version'] !== (string)$version
+			(string)$this->_options[$option]['version'] !== (string)$version ||
+			(
+				isset( $renderer['label'] ) &&
+				isset( $this->_options[$option]['renderer'] ) &&
+				(string)$this->_options[$option]['renderer']['label'] !== (string)$renderer['label']
+			) ||
+			(
+				isset( $renderer['help'] ) &&
+				( ! isset( $this->_options[$option]['renderer']['help'] ) || // handle the case when you are adding help
+				(string)$this->_options[$option]['renderer']['help'] !== (string)$renderer['help'] )
+			)
 		) {
 			$this->_options[$option] = array(
 				'value'    => ( isset( $this->_options[$option] ) )
@@ -212,6 +225,17 @@ class Ai1ec_Settings extends Ai1ec_App {
 		}
 	}
 
+
+	/**
+	 * Do things needed on every plugin upgrade.
+	 */
+	public function perform_upgrade_actions() {
+		$option = $this->_registry->get( 'model.option' );
+		$option->set( 'ai1ec_force_flush_rewrite_rules',      true, true );
+		$option->set( 'ai1ec_invalidate_css_cache',           true, true );
+		$option->set( Ai1ec_Theme_Loader::OPTION_FORCE_CLEAN, true, true );
+	}
+
 	/**
 	 * Hide an option by unsetting it's renderer
 	 *
@@ -248,6 +272,34 @@ class Ai1ec_Settings extends Ai1ec_App {
 	}
 
 	/**
+	 * Observes wp_options changes. If any matches related setting then
+	 * updates that setting.
+	 *
+	 * @param string $option    Name of the updated option.
+	 * @param mixed  $old_value The old option value.
+	 * @param mixed  $value     The new option value.
+	 *
+	 * @return void Method does not return.
+	 */
+	public function wp_options_observer( $option, $old_value, $value ) {
+		$options = $this->get_options();
+		if (
+			self::WP_OPTION_KEY === $option ||
+			empty( $options )
+		) {
+			return;
+		}
+
+		if (
+			isset( $options[$option] ) &&
+			'wp_option' === $options[$option]['type'] &&
+			$this->get( $option ) !== $value
+		) {
+			$this->set( $option, $value );
+		}
+	}
+
+	/**
 	 * Initiate options map from storage.
 	 *
 	 * @return void Return from this method is ignored.
@@ -264,6 +316,9 @@ class Ai1ec_Settings extends Ai1ec_App {
 				$test_version = $values['calendar_page_id']['version'];
 			}
 		}
+		$upgrade = false;
+		// check for updated translations
+		$this->_register_standard_values();
 		if ( // process meta updates changes
 			empty( $values ) || (
 				false !== $test_version &&
@@ -271,11 +326,16 @@ class Ai1ec_Settings extends Ai1ec_App {
 			)
 		) {
 			$this->_register_standard_values();
+			$this->_update_name_translations();
 			$this->_change_update_status( true );
+			$upgrade = true;
 		} else if ( $values instanceof Ai1ec_Settings ) { // process legacy
-			$this->_register_standard_values();
 			$this->_parse_legacy( $values );
 			$this->_change_update_status( true );
+			$upgrade = true;
+		}
+		if ( true === $upgrade ) {
+			$this->perform_upgrade_actions();
 		}
 		$this->_registry->get( 'controller.shutdown' )->register(
 			array( $this, 'shutdown' )
@@ -313,7 +373,7 @@ class Ai1ec_Settings extends Ai1ec_App {
 				'default'  => array(),
 			),
 			'show_tracking_popup' => array(
-				'type'    => 'bool',
+				'type'    => 'deprecated',
 				'default' => true,
 			),
 			'calendar_page_id' => array(
@@ -349,24 +409,48 @@ class Ai1ec_Settings extends Ai1ec_App {
 				),
 				'default'  => array(
 					'agenda' => array(
-						'enabled' => true,
-						'default' => true,
-						'longname' => Ai1ec_I18n::__( 'Agenda' ),
+						'enabled'        => true,
+						'default'        => true,
+						'enabled_mobile' => true,
+						'default_mobile' => true,
+						'longname'       => _n_noop(
+							'Agenda',
+							'Agenda',
+							AI1EC_PLUGIN_NAME
+						),
 					),
 					'oneday' => array(
-						'enabled' => true,
-						'default' => false,
-						'longname' => Ai1ec_I18n::__( 'Day' ),
+						'enabled'        => true,
+						'default'        => false,
+						'enabled_mobile' => true,
+						'default_mobile' => false,
+						'longname'       => _n_noop(
+							'Day',
+							'Day',
+							AI1EC_PLUGIN_NAME
+						),
 					),
 					'month' => array(
-						'enabled' => true,
-						'default' => false,
-						'longname' => Ai1ec_I18n::__( 'Month' ),
+						'enabled'        => true,
+						'default'        => false,
+						'enabled_mobile' => true,
+						'default_mobile' => false,
+						'longname'       => _n_noop(
+							'Month',
+							'Month',
+							AI1EC_PLUGIN_NAME
+						),
 					),
 					'week' => array(
-						'enabled' => true,
-						'default' => false,
-						'longname' => Ai1ec_I18n::__( 'Week' ),
+						'enabled'        => true,
+						'default'        => false,
+						'enabled_mobile' => true,
+						'default_mobile' => false,
+						'longname'       => _n_noop(
+							'Week',
+							'Week',
+							AI1EC_PLUGIN_NAME
+						),
 					),
 				),
 			),
@@ -378,7 +462,6 @@ class Ai1ec_Settings extends Ai1ec_App {
 					'item'      => 'viewing-events',
 					'label'     => Ai1ec_I18n::__( 'Timezone' ),
 					'options'   => 'Ai1ec_Date_Timezone:get_timezones',
-					'condition' => 'Ai1ec_Date_Timezone:is_timezone_not_set',
 				),
 				'default'  => $this->_registry->get( 'model.option' )->get(
 					'timezone_string'
@@ -541,6 +624,18 @@ class Ai1ec_Settings extends Ai1ec_App {
 				),
 				'default'  => false,
 			),
+			'disable_get_calendar_button' => array(
+				'type' => 'bool',
+				'renderer' => array(
+					'class' => 'checkbox',
+					'tab'   => 'viewing-events',
+					'item'  => 'viewing-events',
+					'label' => Ai1ec_I18n::__(
+						'Hide <strong>Get a Timely Calendar</strong> button'
+					)
+				),
+				'default'  => true,
+			),
 			'hide_maps_until_clicked' => array(
 				'type' => 'bool',
 				'renderer' => array(
@@ -550,6 +645,91 @@ class Ai1ec_Settings extends Ai1ec_App {
 					'label' => Ai1ec_I18n::__(
 						' Hide <strong>Google Maps</strong> until clicked'
 					)
+				),
+				'default'  => false,
+			),
+			'affix_filter_menu' => array(
+				'type' => 'bool',
+				'renderer' => array(
+					'class' => 'checkbox',
+					'tab'   => 'viewing-events',
+					'item'  => 'viewing-events',
+					'label' => Ai1ec_I18n::__(
+						' <strong>Affix filter menu</strong> to top of window when it scrolls out of view'
+					),
+					'help'  => Ai1ec_I18n::__(
+						'Only applies to first visible calendar found on the page.'
+					),
+				),
+				'default'  => false,
+			),
+			'affix_vertical_offset_md' => array(
+				'type' => 'int',
+				'renderer' => array(
+					'class'     => 'input',
+					'tab'       => 'viewing-events',
+					'item'      => 'viewing-events',
+					'label'     => Ai1ec_I18n::__( 'Offset affixed filter bar vertically by' ),
+					'type'      => 'append',
+					'append'    => 'pixels',
+					'validator' => 'numeric',
+				),
+				'default'  => 0,
+			),
+			'affix_vertical_offset_lg' => array(
+				'type' => 'int',
+				'renderer' => array(
+					'class'     => 'input',
+					'tab'       => 'viewing-events',
+					'item'      => 'viewing-events',
+					'label'     =>
+						'<i class="ai1ec-fa ai1ec-fa-lg ai1ec-fa-fw ai1ec-fa-desktop"></i> ' .
+						Ai1ec_I18n::__( 'Wide screens only (&#8805; 1200px)' ),
+					'type'      => 'append',
+					'append'    => 'pixels',
+					'validator' => 'numeric',
+				),
+				'default'  => 0,
+			),
+			'affix_vertical_offset_sm' => array(
+				'type' => 'int',
+				'renderer' => array(
+					'class'     => 'input',
+					'tab'       => 'viewing-events',
+					'item'      => 'viewing-events',
+					'label'     =>
+						'<i class="ai1ec-fa ai1ec-fa-lg ai1ec-fa-fw ai1ec-fa-tablet"></i> ' .
+						Ai1ec_I18n::__( 'Tablets only (< 980px)' ),
+					'type'      => 'append',
+					'append'    => 'pixels',
+					'validator' => 'numeric',
+				),
+				'default'  => 0,
+			),
+			'affix_vertical_offset_xs' => array(
+				'type' => 'int',
+				'renderer' => array(
+					'class'     => 'input',
+					'tab'       => 'viewing-events',
+					'item'      => 'viewing-events',
+					'label'     =>
+						'<i class="ai1ec-fa ai1ec-fa-lg ai1ec-fa-fw ai1ec-fa-mobile"></i> ' .
+						Ai1ec_I18n::__( 'Phones only (< 768px)' ),
+					'type'      => 'append',
+					'append'    => 'pixels',
+					'validator' => 'numeric',
+				),
+				'default'  => 0,
+			),
+			'strict_compatibility_content_filtering' => array(
+				'type' => 'bool',
+				'renderer' => array(
+					'class' => 'checkbox',
+					'tab'   => 'viewing-events',
+					'item'  => 'viewing-events',
+					'label' => Ai1ec_I18n::__(
+						'Strict compatibility content filtering'
+					),
 				),
 				'default'  => false,
 			),
@@ -567,15 +747,6 @@ class Ai1ec_Settings extends Ai1ec_App {
 					),
 				),
 				'default'  => false,
-			),
-			'embedding' => array(
-				'type' => 'html',
-				'renderer' => array(
-					'class' => 'html',
-					'tab'   => 'viewing-events',
-					'item'  => 'embedded-views',
-				),
-				'default'  => null,
 			),
 			'input_date_format' => array(
 				'type' => 'string',
@@ -640,14 +811,8 @@ class Ai1ec_Settings extends Ai1ec_App {
 				'default'  => false,
 			),
 			'show_publish_button' => array(
-				'type' => 'bool',
-				'renderer' => array(
-					'class' => 'checkbox',
-					'tab'   => 'editing-events',
-					'label' => Ai1ec_I18n::__(
-						'Display <strong>Publish</strong> at bottom of Edit Event form'
-					)
-				),
+				'type'     => 'deprecated',
+				'renderer' => null,
 				'default'  => false,
 			),
 			'show_create_event_button' => array(
@@ -663,6 +828,15 @@ class Ai1ec_Settings extends Ai1ec_App {
 					),
 				),
 				'default'  => false,
+			),
+			'embedding' => array(
+				'type' => 'html',
+				'renderer' => array(
+					'class' => 'html',
+					'tab'   => 'advanced',
+					'item'  => 'embedded-views',
+				),
+				'default'  => null,
 			),
 			'calendar_css_selector' => array(
 				'type' => 'string',
@@ -710,7 +884,37 @@ class Ai1ec_Settings extends Ai1ec_App {
 						'Disable <strong>gzip</strong> compression.'
 					),
 					'help'  => Ai1ec_I18n::__(
-						'Use this option if calendar is non-responsive. <a href="http://support.time.ly/disable-gzip-compression/">Read more</a> about the issue.'
+						'Use this option if calendar is unresponsive. <a href="http://support.time.ly/disable-gzip-compression/">Read more</a> about the issue. (From version 2.1 onwards, gzip is disabled by default for maximum compatibility.)'
+					),
+				),
+				'default'  => true,
+			),
+			'ai1ec_use_frontend_rendering' => array(
+				'type' => 'bool',
+				'renderer' => array(
+					'class' => 'checkbox',
+					'tab'   => 'advanced',
+					'item'  => 'advanced',
+					'label' => Ai1ec_I18n::__(
+						'Use frontend rendering.'
+					),
+					'help'  => Ai1ec_I18n::__(
+						'Renders calendar views on the client rather than the server; can improve performance.'
+					),
+				),
+				'default'  => false,
+			),
+			'render_css_as_link' => array(
+				'type' => 'bool',
+				'renderer' => array(
+					'class' => 'checkbox',
+					'tab'   => 'advanced',
+					'item'  => 'advanced',
+					'label' => Ai1ec_I18n::__(
+						'<strong>Link CSS</strong> in <code>&lt;head&gt;</code> section when file cache is unavailable.'
+					),
+					'help'  => Ai1ec_I18n::__(
+						'Use this option if file cache is unavailable and you would prefer to serve CSS as a link rather than have it output inline.'
 					),
 				),
 				'default'  => false,
@@ -743,7 +947,7 @@ class Ai1ec_Settings extends Ai1ec_App {
 					'item'  => 'advanced',
 					'label' => sprintf(
 						Ai1ec_I18n::__(
-							'<strong>Publicize, promote, and share my events</strong> marked as public on the Timely network. (<a href="%s" target="_blank">Learn more »</a>)'
+							'<strong>Publicize, promote, and share my events</strong> marked as public on the Timely network. (<a href="%s" target="_blank">Learn more &#187;</a>)'
 						),
 						'http://time.ly/event-search-calendar'
 					),
@@ -771,7 +975,22 @@ class Ai1ec_Settings extends Ai1ec_App {
 					),
 				),
 				'default' => '',
-			)
+			),
+			'always_use_calendar_timezone' => array(
+				'type'     => 'bool',
+				'renderer' => array(
+					'class'  => 'checkbox',
+					'tab'    => 'viewing-events',
+					'item'   => 'viewing-events',
+					'label'  => Ai1ec_I18n::__(
+						'Display events in <strong>calendar time zone</strong>'
+					),
+					'help'  => Ai1ec_I18n::__(
+						'If this box is checked events will appear in the calendar time zone with time zone information displayed on the event details page.'
+					),
+				),
+				'default'  => false,
+			),
 		);
 	}
 
@@ -795,6 +1014,22 @@ class Ai1ec_Settings extends Ai1ec_App {
 				AI1EC_VERSION
 			);
 		}
+	}
+
+	/**
+	 * Update translated strings, after introduction of `_noop` functions.
+	 *
+	 * @return void
+	 */
+	protected function _update_name_translations() {
+		$translations = $this->_standard_options['enabled_views']['default'];
+		$current      = $this->get( 'enabled_views' );
+		foreach ( $current as $key => $view ) {
+			if ( isset( $translations[$key] ) ) {
+				$current[$key]['longname'] = $translations[$key]['longname'];
+			}
+		}
+		$this->set( 'enabled_views', $current );
 	}
 
 	/**

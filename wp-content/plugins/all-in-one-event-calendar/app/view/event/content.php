@@ -84,8 +84,11 @@ class Ai1ec_View_Event_Content extends Ai1ec_Base {
 					'#<\s*script[^>]*>.+<\s*/\s*script\s*>#x',
 					'',
 					apply_filters(
-						'the_content',
-						$event->get( 'post' )->post_content
+						'ai1ec_the_content',
+						apply_filters(
+							'the_content',
+							$event->get( 'post' )->post_content
+						)
 					)
 				)
 			)
@@ -153,6 +156,13 @@ HTML;
 		if ( empty( $matches ) ) {
 			return null;
 		}
+
+		// Mark found image.
+		$event->get( 'post' )->post_content = str_replace(
+			'<img' . $matches[1],
+			'<img' . $matches[1] . ' data-ai1ec-hidden ',
+			$event->get( 'post' )->post_content
+		);
 
 		$url = $matches[2];
 		$size = array( 0, 0 );

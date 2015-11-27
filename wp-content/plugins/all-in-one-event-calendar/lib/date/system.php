@@ -134,7 +134,6 @@ class Ai1ec_Date_System extends Ai1ec_Base {
 	) {
 		$date = $datetime->format( $this->get_date_format_patter( $pattern ) );
 		return str_replace( '/', '-', $date );
-		return $date;
 	}
 
 	/**
@@ -165,10 +164,12 @@ class Ai1ec_Date_System extends Ai1ec_Base {
 	/**
 	 * Returns human-readable version of the GMT offset.
 	 *
+	 * @param string $timezone_name Olsen Timezone name [optional=null]
+	 *
 	 * @return string GMT offset expression
 	 */
-	public function get_gmt_offset_expr() {
-		$timezone = $this->get_gmt_offset();
+	public function get_gmt_offset_expr( $timezone_name = null ) {
+		$timezone = $this->get_gmt_offset( $timezone_name );
 		$offset_h = (int)( $timezone / 60 );
 		$offset_m = absint( $timezone - $offset_h * 60 );
 		$timezone = sprintf(
@@ -183,13 +184,18 @@ class Ai1ec_Date_System extends Ai1ec_Base {
 	/**
 	 * Get current GMT offset in seconds.
 	 *
+	 * @param string $timezone_name Olsen Timezone name [optional=null]
+	 *
 	 * @return int Offset from GMT in seconds.
 	 */
-	public function get_gmt_offset() {
+	public function get_gmt_offset( $timezone_name = null ) {
+		if ( null === $timezone_name ) {
+			$timezone_name = 'sys.default';
+		}
 		$current = $this->_registry->get(
 			'date.time',
 			'now',
-			$this->_registry->get( 'date.timezone' )->get_default_timezone()
+			$timezone_name
 		);
 		return $current->get_gmt_offset();
 	}
@@ -231,5 +237,16 @@ class Ai1ec_Date_System extends Ai1ec_Base {
 			$this->_gmtdates->set( $timestamp, $date );
 		}
 		return $date;
+	}
+
+	/**
+	 * Returns current rounded time as unix integer.
+	 *
+	 * @param int $shift Shift value.
+	 *
+	 * @return int Unix timestamp.
+	 */
+	public function get_current_rounded_time( $shift = 11 ) {
+		return $this->current_time() >> $shift << $shift;
 	}
 }

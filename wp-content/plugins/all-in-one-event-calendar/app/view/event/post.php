@@ -62,7 +62,7 @@ class Ai1ec_View_Event_Post extends Ai1ec_Base {
 
 		return $messages;
 	}
-	
+
 	/**
 	 * Generates an excerpt from the given content string.
 	 *
@@ -74,17 +74,26 @@ class Ai1ec_View_Event_Post extends Ai1ec_Base {
 	 * @return string The excerpt.
 	 */
 	public function trim_excerpt( Ai1ec_Event $event, $length = 35, $more = '[...]' ) {
+		global $post;
+		$original_post = $post;
+		$post          = $event->get( 'post' );
 		$raw_excerpt    = $event->get( 'post' )->post_content;
-	
+		if ( ! isset( $raw_excerpt{0} ) ) {
+			$raw_excerpt = '&nbsp;';
+		}
+
 		$text           = preg_replace(
 			'#<\s*script[^>]*>.+<\s*/\s*script\s*>#x',
 			'',
-			apply_filters( 'the_content', $event->get( 'post' )->post_content )
+			apply_filters(
+				'the_excerpt',
+				$raw_excerpt
+			)
 		);
 		$text           = strip_shortcodes( $text );
 		$text           = str_replace( ']]>', ']]&gt;', $text );
 		$text           = strip_tags( $text );
-	
+
 		$excerpt_length = apply_filters( 'excerpt_length', $length );
 		$excerpt_more   = apply_filters( 'excerpt_more', $more );
 		$words          = preg_split(
@@ -100,6 +109,7 @@ class Ai1ec_View_Event_Post extends Ai1ec_Base {
 		} else {
 			$text = implode( ' ', $words );
 		}
+		$post = $original_post;
 		return apply_filters( 'wp_trim_excerpt', $text, $raw_excerpt );
 	}
 

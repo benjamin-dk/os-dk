@@ -37,13 +37,23 @@ class Ai1ec_Settings_View extends Ai1ec_App {
 	public function add( array $view ) {
 		$enabled_views = $this->_get();
 		if ( isset( $enabled_views[$view['name']] ) ) {
-			return;
+			if ( $enabled_views[$view['name']]['longname'] === $view['longname'] ) {
+				return;
+			}
+			$enabled_views[$view['name']]['longname'] = $view['longname'];
+		} else {
+			// Copy relevant settings to local view array; account for possible missing
+			// mobile settings during upgrade (assign defaults).
+			$enabled_views[$view['name']] = array(
+				'enabled'        => $view['enabled'],
+				'default'        => $view['default'],
+				'enabled_mobile' => isset( $view['enabled_mobile'] ) ?
+				                    $view['enabled_mobile'] : $view['enabled'],
+				'default_mobile' => isset( $view['default_mobile'] ) ?
+				                    $view['default_mobile'] : $view['default'],
+				'longname'       => $view['longname'],
+			);
 		}
-		$enabled_views[$view['name']] = array(
-			'enabled'  => $view['enabled'],
-			'default'  => $view['default'],
-			'longname' => $view['longname'],
-		);
 		$this->_set( $enabled_views );
 	}
 
@@ -94,19 +104,40 @@ class Ai1ec_Settings_View extends Ai1ec_App {
 
 	/**
 	 * Get default view to render.
-	 * 
-	 * 
-	 * @return 
+	 *
+	 *
+	 * @return
 	 */
 	public function get_default() {
 		$enabled_views = $this->_get();
 		$default       = null;
-		foreach ( $enabled_views as $view => $details ) {
-			if ( $details['default'] && $details['enabled'] ) {
-				$default = $view;
-				break;
+		// Check mobile settings first, if in mobile mode.
+		if (
+			! $this->_registry->get( 'compatibility.cli' )->is_cli() &&
+			wp_is_mobile()
+		) {
+			foreach ( $enabled_views as $view => $details ) {
+				if (
+					isset( $details['default_mobile'] ) &&
+					$details['default_mobile'] &&
+					$details['enabled_mobile']
+				) {
+					$default = $view;
+					break;
+				}
 			}
 		}
+		// Either not in mobile mode or no mobile settings available; look up
+		// desktop settings.
+		if ( null === $default ) {
+			foreach ( $enabled_views as $view => $details ) {
+				if ( $details['default'] && $details['enabled'] ) {
+					$default = $view;
+					break;
+				}
+			}
+		}
+		// No enabled view found, but we need to pick one, so pick the first view.
 		if ( null === $default ) {
 			$default = (string)current( array_keys( $enabled_views ) );
 		}

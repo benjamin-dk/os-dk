@@ -67,10 +67,12 @@ class Ai1ec_Factory_Html extends Ai1ec_Base {
 	 *
 	 * @param array           $args         Populated args for the view
 	 * @param int|string|null $initial_date The datepicker's initially set date
+	 * @param string          $title        Title to display in datepicker button
+	 * @param string          $title_short  Short names in title
 	 * @return Ai1ec_Generic_Html_Tag
 	 */
 	public function create_datepicker_link(
-		array $args, $initial_date = null
+		array $args, $initial_date = null, $title = '', $title_short = ''
 	) {
 		$settings    = $this->_registry->get( 'model.settings' );
 		$date_system = $this->_registry->get( 'date.system' );
@@ -106,6 +108,11 @@ class Ai1ec_Factory_Html extends Ai1ec_Base {
 			'tag_ids'    => $args['tag_ids'],
 			'exact_date' => "__DATE__",
 		);
+		$href_args = apply_filters(
+			'ai1ec_date_picker_href_args',
+			$href_args,
+			$args
+		);
 		$data_href = $this->create_href_helper_instance( $href_args );
 
 		$attributes = array(
@@ -114,15 +121,18 @@ class Ai1ec_Factory_Html extends Ai1ec_Base {
 			'data-date-weekstart' => $settings->get( 'week_start_day' ),
 			'href' => '#',
 			'data-href' => $data_href->generate_href(),
+			'data-lang' => str_replace( '_', '-', get_locale() ),
 		);
 		$loader = $this->_registry->get( 'theme.loader' );
 		$file = $loader->get_file( 'date-icon.png' );
 
 		$args = array(
-			'attributes' => $attributes,
-			'data_type'  => $args['data_type'],
-			'icon_url'   => $file->get_url(),
-			'text_date'  => __( 'Choose a date using calendar', AI1EC_PLUGIN_NAME ),
+			'attributes'  => $attributes,
+			'data_type'   => $args['data_type'],
+			'icon_url'    => $file->get_url(),
+			'text_date'   => __( 'Choose a date using calendar', AI1EC_PLUGIN_NAME ),
+			'title'       => $title,
+			'title_short' => $title_short,
 		);
 
 		return $loader->get_file( 'datepicker_link.twig', $args );
@@ -214,6 +224,9 @@ class Ai1ec_Factory_Html extends Ai1ec_Base {
 			'data-placeholder' => $args['placeholder'],
 			'class'            => 'ai1ec-select2-multiselect-selector span12'
 		);
+		if ( isset( $args['class'] ) ) {
+			$select2_args['class'] .= ' ' . $args['class'];
+		}
 		$container_class = false;
 		if ( isset( $args['type'] ) ) {
 			$container_class = 'ai1ec-' . $args['type'] . '-filter';

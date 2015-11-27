@@ -13,12 +13,12 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 
 	const QUERY_STRING_PARAM                = 'ai1ec_render_css';
 
-	// This is for testing purpose, set it to AI1EC_DEBUG value.
-	const PARSE_LESS_FILES_AT_EVERY_REQUEST = AI1EC_DEBUG;
+	// This is for testing purpose, set it to AI1EC_PARSE_LESS_FILES_AT_EVERY_REQUEST value.
+	const PARSE_LESS_FILES_AT_EVERY_REQUEST = AI1EC_PARSE_LESS_FILES_AT_EVERY_REQUEST;
 
 	const KEY_FOR_PERSISTANCE               = 'ai1ec_parsed_css';
 	/**
-	 * @var Ai1ec_Css_Persistence_Helper
+	 * @var Ai1ec_Persistence_Context
 	 */
 	private $persistance_context;
 
@@ -28,35 +28,75 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 	private $lessphp_controller;
 
 	/**
-	 * @var Ai1ec_Wordpress_Db_Adapter
+	 * @var Ai1ec_Option
 	 */
 	private $db_adapter;
-
-	/**
-	 * @var boolean
-	 */
-	private $preview_mode;
 
 	/**
 	 * @var Ai1ec_Template_Adapter
 	 */
 	private $template_adapter;
 
+	/**
+	 * Possible paths/url for file cache
+	 *
+	 * @var array
+	 */
+	protected $_cache_paths = array();
+
+	/**
+	 * @var array which have been checked and are not writable
+	 */
+	protected $_folders_not_writable = array();
+
 	public function __construct(
-		Ai1ec_Registry_Object $registry,
-		$preview_mode = false
+		Ai1ec_Registry_Object $registry
 	) {
 		parent::__construct( $registry );
+		$this->_cache_paths[] = array(
+			'path' => AI1EC_CACHE_PATH,
+			'url'  => AI1EC_CACHE_URL
+		);
+		if ( apply_filters( 'ai1ec_check_static_dir', true ) ) {
+			$filesystem = $this->_registry->get( 'filesystem.checker' );
+			$wp_static_folder = $filesystem->get_ai1ec_static_dir_if_available();
+			if ( '' !== $wp_static_folder ) {
+				$this->_cache_paths[] = array(
+					'path' => $wp_static_folder,
+					'url'  => content_url() . '/uploads/ai1ec_static/'
+				);
+			}
+		}
 		$this->persistance_context = $this->_registry->get(
 			'cache.strategy.persistence-context',
 			self::KEY_FOR_PERSISTANCE,
-			AI1EC_CACHE_PATH
+			$this->_cache_paths,
+			true
 		);
+		if ( ! $this->persistance_context->is_file_cache() ) {
+			 /* @TODO: move this to Settings -> Advanced -> Cache */
+		}
 		$this->lessphp_controller  = $this->_registry->get( 'less.lessphp' );
 		$this->db_adapter          = $this->_registry->get( 'model.option' );
-		$this->preview_mode        = $preview_mode;
 	}
 
+	/**
+	 *
+	 * Get if file cache is enabled
+	 * @return boolean
+	 */
+	public function is_file_cache_enabled() {
+		return $this->persistance_context->is_file_cache();
+	}
+
+	/**
+	 * Get folders which are not writable
+	 *
+	 * @return array
+	 */
+	public function get_folders_not_writable() {
+		return $this->_folders_not_writable;
+	}
 	/**
 	 * Renders the css for our frontend.
 	 *
@@ -84,16 +124,8 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 			$etag !== stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] )
 		) {
 			// compress data if possible
-			$compatibility_ob = $this->_registry->get( 'compatibility.ob' );
-			if ( $this->_registry->get( 'http.request' )->client_use_gzip() ) {
-				$compatibility_ob->start( 'ob_gzhandler' );
-				header( 'Content-Encoding: gzip' );
-			} else {
-				$compatibility_ob->start();
-			}
-			$content = $this->get_compiled_css();
-			echo $content;
-			$compatibility_ob->end_flush();
+			$this->_registry->get( 'compatibility.ob' )
+				->gzip_if_possible( $this->get_compiled_css() );
 		} else {
 			// Not modified!
 			status_header( 304 );
@@ -108,8 +140,13 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 	 * @throws Ai1ec_Cache_Write_Exception
 	 */
 	public function update_persistence_layer( $css ) {
-		$this->persistance_context->write_data_to_persistence( $css );
-		$this->save_less_parse_time();
+		$filename = $this->persistance_context->write_data_to_persistence( $css );
+		$this->db_adapter->set(
+			'ai1ec_filename_css',
+			isset( $filename['file'] ) ? $filename['file'] : false,
+			true
+		);
+		$this->save_less_parse_time( $filename['url'] );
 	}
 
 
@@ -119,11 +156,41 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 	 * @return string
 	 */
 	public function get_css_url() {
-		$time = (int) $this->db_adapter->get( self::QUERY_STRING_PARAM );
-		$template_helper = $this->_registry->get( 'template.link.helper' );
-		return add_query_arg(
-			array( self::QUERY_STRING_PARAM => $time, ),
-			trailingslashit( $template_helper->get_site_url() )
+		// get what's saved. I t could be false, a int or a string.
+		// if it's false or a int, use PHP to render CSS
+		$saved_par = $this->db_adapter->get( self::QUERY_STRING_PARAM );
+		// if it's empty it's a new install probably. Return static css.
+		// if it's numeric, just consider it a new install
+		if ( empty( $saved_par ) ) {
+			$theme = $this->_registry->get(
+				'model.option'
+			)->get( 'ai1ec_current_theme' );
+			return Ai1ec_Http_Response_Helper::remove_protocols(
+				apply_filters(
+					'ai1ec_frontend_standard_css_url',
+					$theme['theme_url'] . '/css/ai1ec_parsed_css.css'
+				)
+			);
+		}
+		if ( is_numeric( $saved_par ) ) {
+			if ( $this->_registry->get( 'model.settings' )->get( 'render_css_as_link' ) ) {
+				$time = (int) $saved_par;
+				$template_helper = $this->_registry->get( 'template.link.helper' );
+				return Ai1ec_Http_Response_Helper::remove_protocols(
+					add_query_arg(
+						array( self::QUERY_STRING_PARAM => $time, ),
+						trailingslashit( ai1ec_get_site_url() )
+					)
+				);
+			} else {
+				add_action( 'wp_head', array( $this, 'echo_css' ) );
+				return '';
+			}
+
+		}
+		// otherwise return the string
+		return Ai1ec_Http_Response_Helper::remove_protocols(
+			$saved_par
 		);
 	}
 
@@ -131,14 +198,16 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 	 * Create the link that will be added to the frontend
 	 */
 	public function add_link_to_html_for_frontend() {
-		$preview = '';
-		if( true === $this->preview_mode ) {
-			// bypass browser caching of the css
-			$now = strtotime( 'now' );
-			$preview = "&preview=1&nocache={$now}&ai1ec_stylesheet=" . $_GET['ai1ec_stylesheet'];
+		$url = $this->get_css_url();
+		if ( '' !== $url && ! is_admin() ) {
+			wp_enqueue_style( 'ai1ec_style', $url, array(), AI1EC_VERSION );
 		}
-		$url = $this->get_css_url() . $preview;
-		wp_enqueue_style( 'ai1ec_style', $url, array(), AI1EC_VERSION );
+	}
+
+	public function echo_css() {
+		echo '<style>';
+		echo $this->get_compiled_css();
+		echo '</style>';
 	}
 
 	/**
@@ -154,13 +223,39 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 		array $variables    = null,
 		$update_persistence = false
 	) {
-		// Reset the parse time to force a browser reload of the CSS, whether we are
-		// updating persistence or not.
-		$this->save_less_parse_time();
+		if ( ! $this->lessphp_controller->is_compilation_needed( $variables ) ) {
+			$this->_registry->get(
+				'model.option'
+			)->delete( 'ai1ec_render_css' );
+			return true;
+		}
 		$notification = $this->_registry->get( 'notification.admin' );
+		if (
+			! $this->_registry->get(
+				'compatibility.memory'
+			)->check_available_memory( AI1EC_LESS_MIN_AVAIL_MEMORY )
+		) {
+			$message = sprintf(
+				Ai1ec_I18n::__(
+					'CSS compilation failed because you don\'t have enough free memory (a minimum of %s is needed). Your calendar will not render or function properly without CSS. Please read <a href="http://time.ly/document/user-guide/getting-started/pre-sale-questions/">this article</a> to learn how to increase your PHP memory limit.'
+				),
+				AI1EC_LESS_MIN_AVAIL_MEMORY
+			);
+			$notification->store(
+				$message,
+				'error',
+				1,
+				array( Ai1ec_Notification_Admin::RCPT_ADMIN ),
+				true
+			);
+			return;
+		}
 		try {
 			// Try to parse the css
 			$css = $this->lessphp_controller->parse_less_files( $variables );
+			// Reset the parse time to force a browser reload of the CSS, whether we are
+			// updating persistence or not. Do it here to be sure files compile ok.
+			$this->save_less_parse_time();
 			if ( $update_persistence ) {
 				$this->update_persistence_layer( $css );
 			} else {
@@ -205,14 +300,14 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 					'<p>' . Ai1ec_I18n::__(
 						"Theme options were successfully reset to their default values. <a href='%s'>Visit site</a>"
 					) . '</p>',
-					get_site_url()
+					ai1ec_get_site_url()
 				);
 			} else {
 				$message = sprintf(
 					'<p>' .Ai1ec_I18n::__(
 						"Theme options were updated successfully. <a href='%s'>Visit site</a>"
 					) . '</p>',
-					get_site_url()
+					ai1ec_get_site_url()
 				);
 			}
 
@@ -225,10 +320,10 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 	 * If we are in preview mode, recompile the css using the theme present in the url.
 	 *
 	 */
-	private function get_compiled_css() {
+	public function get_compiled_css() {
 		try {
 			// If we want to force a recompile, we throw an exception.
-			if( $this->preview_mode === true || self::PARSE_LESS_FILES_AT_EVERY_REQUEST === true ) {
+			if( self::PARSE_LESS_FILES_AT_EVERY_REQUEST === true ) {
 				throw new Ai1ec_Cache_Not_Set_Exception();
 			}else {
 				// This throws an exception if the key is not set
@@ -236,18 +331,28 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 				return $css;
 			}
 		} catch ( Ai1ec_Cache_Not_Set_Exception $e ) {
-			// If we are in preview mode we force a recompile and we pass the variables.
-			if( $this->preview_mode ) {
-				return $this->lessphp_controller->parse_less_files(
-					$this->lessphp_controller->get_less_variable_data_from_config_file()
-				);
-			} else {
-				$css = $this->lessphp_controller->parse_less_files();
-			}
+			$css = $this->lessphp_controller->parse_less_files();
 			try {
 				$this->update_persistence_layer( $css );
 				return $css;
 			} catch ( Ai1ec_Cache_Write_Exception $e ) {
+				if ( ! self::PARSE_LESS_FILES_AT_EVERY_REQUEST ) {
+					$this->_registry->get( 'notification.admin' )
+						->store(
+							sprintf(
+								__(
+									'Your CSS is being compiled on every request, which causes your calendar to perform slowly. The following error occurred: %s',
+									AI1EC_PLUGIN_NAME
+								),
+								$e->getMessage()
+							),
+							'error',
+							2,
+							array( Ai1ec_Notification_Admin::RCPT_ADMIN ),
+							true
+						);
+				}
+
 				// If something is really broken, still return the css.
 				// This means we parse it every time. This should never happen.
 				return $css;
@@ -256,12 +361,15 @@ class Ai1ec_Css_Frontend extends Ai1ec_Base {
 	}
 
 	/**
-	 * Save the compile time to the db so that we can use it to build the link
+	 * Save the path to the CSS file or false to load standard CSS
 	 */
-	private function save_less_parse_time() {
+	private function save_less_parse_time( $data = false ) {
+		$to_save = is_string( $data ) ?
+					$data :
+					$this->_registry->get( 'date.system' )->current_time();
 		$this->db_adapter->set(
 			self::QUERY_STRING_PARAM,
-			$this->_registry->get( 'date.system' )->current_time(),
+			$to_save,
 			true
 		);
 	}

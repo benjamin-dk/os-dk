@@ -9,7 +9,7 @@
 * @package    AI1EC
 * @subpackage AI1EC.View
 */
-class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
+class Ai1ec_Calendar_View_Week extends Ai1ec_Calendar_View_Abstract {
 
 	/* (non-PHPdoc)
 	 * @see Ai1ec_Calendar_View_Abstract::get_name()
@@ -30,6 +30,7 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 			'tag_ids'       => array(),
 			'auth_ids'      => array(),
 			'post_ids'      => array(),
+			'instance_ids'  => array(),
 			'exact_date'    => $date_system->current_time(),
 		);
 		$args = wp_parse_args( $view_args, $defaults );
@@ -44,29 +45,36 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 
 		$cell_array = $this->get_week_cell_array(
 			$local_date,
-			array(
-				'cat_ids'  => $args['cat_ids'],
-				'tag_ids'  => $args['tag_ids'],
-				'post_ids' => $args['post_ids'],
-				'auth_ids' => $args['auth_ids'],
+			apply_filters(
+				'ai1ec_get_events_relative_to_filter',
+				array(
+					'cat_ids'      => $args['cat_ids'],
+					'tag_ids'      => $args['tag_ids'],
+					'post_ids'     => $args['post_ids'],
+					'auth_ids'     => $args['auth_ids'],
+					'instance_ids' => $args['instance_ids'],
+				),
+				$view_args,
+				apply_filters(
+					'ai1ec_show_unique_events',
+					false
+				)
 			)
 		);
 
-		// Create pagination links.
-		$pagination_links = $this->_get_pagination( $args );
-
-
-		// Translators: "%s" below represents the week's start date.
+		// Create pagination links.	(Translators: '%s' = week's start date.)
 		$title = sprintf(
 			__( 'Week of %s', AI1EC_PLUGIN_NAME ),
 			$local_date->format_i18n( 'F j' )
 		);
+		$pagination_links = $this->_get_pagination( $args, $title );
+
 		$time_format = $this->_registry->get( 'model.option' )
 			->get( 'time_format', Ai1ec_I18n::__( 'g a' ) );
 
 		// Calculate today marker's position.
-		$now = $this->_registry->get( 'date.time' );
-		$now_text = $now->format_i18n( 'M j' );
+		$now = $this->_registry->get( 'date.time', 'now', 'sys.default' );
+		$now_text = $now->format_i18n( 'M j h:i a' );
 		$now = $now->format( 'G' ) * 60 + $now->format( 'i' );
 		// Find out if the current week view contains "now" and thus should display
 		// the "now" marker.
@@ -77,8 +85,18 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 				break;
 			}
 		}
+
 		$is_ticket_button_enabled = apply_filters( 'ai1ec_week_ticket_button', false );
 		$show_reveal_button       = apply_filters( 'ai1ec_week_reveal_button', false );
+
+		$hours = array();
+		$today = $this->_registry->get( 'date.time', 'now', 'sys.default' );
+		for ( $hour = 0; $hour < 24; $hour++ ) {
+			$hours[] = $today
+				->set_time( $hour, 0, 0 )
+				->format_i18n( $time_format );
+		}
+
 		$view_args = array(
 			'title'                    => $title,
 			'type'                     => 'week',
@@ -87,27 +105,46 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 			'now_top'                  => $now,
 			'now_text'                 => $now_text,
 			'show_now'                 => $show_now,
-			'pagination_links'         => $pagination_links,
 			'post_ids'                 => join( ',', $args['post_ids'] ),
 			'time_format'              => $time_format,
 			'done_allday_label'        => false,
 			'done_grid'                => false,
 			'data_type'                => $args['data_type'],
-			'data_type_events'         => '',
 			'is_ticket_button_enabled' => $is_ticket_button_enabled,
 			'show_reveal_button'       => $show_reveal_button,
 			'text_full_day'            => __( 'Reveal full day', AI1EC_PLUGIN_NAME ),
 			'text_all_day'             => __( 'All-day', AI1EC_PLUGIN_NAME ),
 			'text_now_label'           => __( 'Now:', AI1EC_PLUGIN_NAME ),
 			'text_venue_separator'     => __( '@ %s', AI1EC_PLUGIN_NAME ),
+			'hours'                    => $hours,
+			'indent_multiplier'        => 8,
+			'indent_offset'            => 0,
+			'pagination_links'         => $pagination_links,
 		);
-		if( $settings->get( 'ajaxify_events_in_web_widget' ) ) {
-			$view_args['data_type_events'] = $args['data_type'];
-		}
-		// Add navigation if requested.
-		$view_args['navigation'] = $this->_get_navigation( $args['no_navigation'], $view_args );
 
-		return $this->_get_view( $view_args );
+		// Add navigation if requested.
+		$view_args['navigation'] = $this->_get_navigation(
+			array(
+				'no_navigation'    => $args['no_navigation'],
+				'pagination_links' => $pagination_links,
+				'views_dropdown'   => $args['views_dropdown'],
+				'below_toolbar'    => apply_filters(
+					'ai1ec_below_toolbar',
+					'',
+					$this->get_name(),
+					$args
+				),
+			)
+		);
+
+		$view_args = $this->get_extra_template_arguments( $view_args );
+
+		return
+			$this->_registry->get( 'http.request' )->is_json_required(
+				$args['request_format'], 'week'
+			)
+			? $this->_apply_filters_to_args( $view_args )
+			: $this->_get_view( $view_args );
 	}
 
 	/**
@@ -118,11 +155,12 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 	 * ['enabled'], CSS class ['class'], text ['text'] and value to assign to
 	 * link's href ['href'].
 	 *
-	 * @param array $args	Current request arguments
+	 * @param array  $args  Current request arguments
+	 * @param string $title Title to display in datepicker button
 	 *
 	 * @return array      Array of links
 	 */
-	protected function get_week_pagination_links( $args ) {
+	protected function get_week_pagination_links( $args, $title ) {
 		$links = array();
 
 		$orig_date = $args['exact_date'];
@@ -151,7 +189,8 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 		$factory = $this->_registry->get( 'factory.html' );
 		$links[] = $factory->create_datepicker_link(
 			$args,
-			$args['exact_date']
+			$args['exact_date'],
+			$title
 		);
 
 		// =============
@@ -214,6 +253,8 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 		// Split up events on a per-day basis
 		$all_events = array();
 		$this->_days_cache = $this->_registry->get( 'cache.memory' );
+		$this->_registry->get( 'controller.content-filter' )
+			->clear_the_content_filters();
 		foreach ( $week_events as $evt ) {
 			list( $evt_start, $evt_end ) = $this->
 				_get_view_specific_timestamps( $evt );
@@ -260,7 +301,8 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 				}
 			}
 		}
-
+		$this->_registry->get( 'controller.content-filter' )
+			->restore_the_content_filters();
 		// This will store the returned array
 		$days = array();
 		$now  = $this->_registry->get(
@@ -294,31 +336,71 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 				$all_events[$day_date]['notallday'] = array();
 			}
 
-			$notallday = array();
 			$evt_stack = array( 0 ); // Stack to keep track of indentation
-			foreach ( $all_events[$day_date]['notallday'] as $evt ) {
-				$start = $evt->get( 'start' );
 
-				// Calculate top and bottom edges of current event
-				$top = $start->format( 'G' ) * 60 + $start->format( 'i' );
-				$bottom = min( $top + $evt->get_duration() / 60, 1440 );
-
-				// While there's more than one event in the stack and this event's top
-				// position is beyond the last event's bottom, pop the stack
-				while ( count( $evt_stack ) > 1 && $top >= end( $evt_stack ) ) {
-					array_pop( $evt_stack );
+			foreach ( $all_events[$day_date] as $event_type => &$events ) {
+				foreach ( $events as &$evt ) {
+					$event = array(
+						'filtered_title'   => $evt->get_runtime( 'filtered_title' ),
+						'post_excerpt'     => $evt->get_runtime( 'post_excerpt' ),
+						'color_style'      => $evt->get_runtime( 'color_style' ),
+						'category_colors'  => $evt->get_runtime( 'category_colors' ),
+						'permalink'        => $evt->get_runtime( 'instance_permalink' ),
+						'ticket_url_label' => $evt->get_runtime( 'ticket_url_label' ),
+						'edit_post_link'   => $evt->get_runtime( 'edit_post_link' ),
+						'faded_color'      => $evt->get_runtime( 'faded_color' ),
+						'rgba_color'       => $evt->get_runtime( 'rgba_color' ),
+						'short_start_time' => $evt->get_runtime( 'short_start_time' ),
+						'instance_id'      => $evt->get( 'instance_id' ),
+						'post_id'          => $evt->get( 'post_id' ),
+						'is_multiday'      => $evt->get( 'is_multiday' ),
+						'venue'            => $evt->get( 'venue' ),
+						'ticket_url'       => $evt->get( 'ticket_url' ),
+						'start_truncated'  => $evt->get( 'start_truncated' ),
+						'end_truncated'    => $evt->get( 'end_truncated' ),
+						'popup_timespan'   => $this->_registry
+							->get( 'twig.ai1ec-extension')->timespan( $evt, 'short' ),
+						'avatar'           => $this->_registry
+							->get( 'twig.ai1ec-extension')->avatar(
+								$evt,
+								array(
+									'post_thumbnail',
+									'content_img',
+									'location_avatar',
+									'category_avatar',
+								),
+								'',
+								false ),
+					);
+					if (
+						$this->_compatibility->use_backward_compatibility()
+					) {
+						$event = $evt;
+					}
+					if ( 'notallday' === $event_type) {
+						$start = $evt->get( 'start' );
+						// Calculate top and bottom edges of current event
+						$top = $start->format( 'G' ) * 60 + $start->format( 'i' );
+						$bottom = min( $top + $evt->get_duration() / 60, 1440 );
+						// While there's more than one event in the stack and this event's top
+						// position is beyond the last event's bottom, pop the stack
+						while ( count( $evt_stack ) > 1 && $top >= end( $evt_stack ) ) {
+							array_pop( $evt_stack );
+						}
+						// Indentation is number of stacked events minus 1
+						$indent = count( $evt_stack ) - 1;
+						// Push this event onto the top of the stack
+						array_push( $evt_stack, $bottom );
+						$evt = array(
+							'top'    => $top,
+							'height' => $bottom - $top,
+							'indent' => $indent,
+							'event'  => $event,
+						);
+					} else {
+						$evt = $event;
+					}
 				}
-				// Indentation is number of stacked events minus 1
-				$indent = count( $evt_stack ) - 1;
-				// Push this event onto the top of the stack
-				array_push( $evt_stack, $bottom );
-
-				$notallday[] = array(
-					'top'    => $top,
-					'height' => $bottom - $top,
-					'indent' => $indent,
-					'event'  => $evt,
-				);
 			}
 
 			$days[$day_date] = array(
@@ -327,8 +409,12 @@ class Ai1ec_Calendar_View_Week  extends Ai1ec_Calendar_View_Abstract {
 					$day_date_ob->format( 'm' ) == $now->format( 'm' ) &&
 					$day_date_ob->format( 'j' ) == $now->format( 'j' ),
 				'allday'    => $all_events[$day_date]['allday'],
-				'notallday' => $notallday,
+				'notallday' => $all_events[$day_date]['notallday'],
 				'href'      => $href_for_date,
+				'day'       => $this->_registry->
+					get( 'date.time', $day_date )->format_i18n( 'j' ),
+				'weekday'   => $this->_registry->
+					get( 'date.time', $day_date )->format_i18n( 'D' ),
 			);
 		}
 
